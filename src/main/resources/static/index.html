@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="css/alarm_style.css" rel="stylesheet" type="text/css" />
+    <title id="title">语音报警模块</title>
+</head>
+<body onload="init_data()">
+<div id="title_div">语音报警模块</div>
+<div id="raw_div">
+    <div class="raw_title">生<br/>料<br/>工<br/>序</div>
+    <div class="table_div">
+        <table id="raw_table" class="table">
+            <thead>
+            <tr>
+                <th class="th1">等级</th>
+                <th class="th2">报警内容</th>
+                <th class="th3">当前值</th>
+                <th class="th4">变化率</th>
+                <th class="th5">时间</th>
+                <th class="th6"></th>
+            </tr>
+            </thead>
+            <tbody id="raw_body">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="pyro_div">
+    <div class="pyro_title">烧<br/>成<br/>工<br/>序</div>
+    <div class="table_div">
+        <table id="pyro_table" class="table">
+            <thead>
+            <tr>
+                <th class="th1">等级</th>
+                <th class="th2">报警内容</th>
+                <th class="th3">当前值</th>
+                <th class="th4">变化率</th>
+                <th class="th5">时间</th>
+                <th class="th6"></th>
+            </tr>
+            </thead>
+            <tbody id="pyro_body">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="cement_div">
+    <div class="cement_title">制<br/>成<br/>工<br/>序</div>
+    <div class="table_div">
+        <table id="cement_table" class="table">
+            <thead>
+            <tr>
+                <th class="th1">等级</th>
+                <th class="th2">报警内容</th>
+                <th class="th3">当前值</th>
+                <th class="th4">变化率</th>
+                <th class="th5">时间</th>
+                <th class="th6"></th>
+            </tr>
+            </thead>
+            <tbody id="cement_body">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery-3.0.0.js"></script>
+<script type="text/javascript" src="js/alarmdata.js"></script>
+</body>
+</html>

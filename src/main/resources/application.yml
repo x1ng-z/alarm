@@ -1,0 +1,38 @@
+
+spring:
+  application:
+    name: alarm
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 60s
+rules:
+  filelocation: E:\\project\\2021_Project\\alarm\\conf\\Production_Line.xml
+
+
+
+collector:
+  dataresurce: iot
+  innerurl: http:/127.0.0.1:8770
+  ioturl: http://192.168.137.181/iot
+wx:
+  url: http://192.168.10.212:8080/HS_Push/SendMsgAction
+  department: 桐庐测试群
+  #发生报警后，在这时间段内不进行报警
+  pushIntervalSec: 300
+  # 持续报警状态一段时间，就推送一次
+  continueAlarmSec: 60
+
+audio:
+  #0-2,数字越大速度越快
+  rate: 1
+
+
+
+
+
+

@@ -1,0 +1,66 @@
+#mainbody{
+    width:100%;height:100%;
+    /*background-color: rgb(13, 23, 89);*/
+}
+
+#title_div{
+    position: absolute;width: 98%;height: 6%;top:0;left: 1%;border: 1px solid #000000;
+    background-color: aquamarine;font-weight: bolder;text-align: center;font-size: 1.8rem;line-height: 2.6rem;
+}
+
+#raw_div{
+    position: absolute;width: 98%;height: 31%;top:6%;left: 1%;border: 1px solid #000000;
+}
+#pyro_div{
+    position: absolute;width: 98%;height: 31%;top:37%;left: 1%;border: 1px solid #000000;
+}
+#cement_div{
+    position: absolute;width: 98%;height: 31%;top:68%;left: 1%;border: 1px solid #000000;
+}
+
+.raw_title{
+    position: absolute;width: 6%;height: 100%;top:0;left: 0;
+    background-color: #ffbc6d;font-weight: bolder;text-align: center;font-size: 1.4rem;line-height: 3rem;
+}
+.pyro_title{
+    position: absolute;width: 6%;height: 100%;top:0;left: 0;
+    background-color: #ff554e;font-weight: bolder;text-align: center;font-size: 1.4rem;line-height: 3rem;
+}
+.cement_title{
+    position: absolute;width: 6%;height: 100%;top:0;left: 0;
+    background-color: #4d77c8;font-weight: bolder;text-align: center;font-size: 1.4rem;line-height: 3rem;
+}
+
+.table_div{position: absolute;width: 94%;height: 100%;top:0;left: 6%;}
+
+.table{
+    position:absolute;width:100%;height:100%;top:0;left: 0;
+    border-collapse: collapse;border-spacing:0;color: #000000;
+}
+
+.table thead {
+    display:table;border: 1px solid #5d687f; width:100%;height:4%;background-color: white;
+}
+
+.table th{
+    border: 1px solid #000000;line-height:1.4rem;font-size:1rem;font-family:宋体,serif;
+}
+
+.table tbody{
+    height:95%;width: 100%;background: #ffffff;display:block;
+    overflow:scroll;overflow-x:hidden;
+}
+
+.table tr{width:100%;table-layout:fixed;}
+
+.table td{height: 1rem;font-size: 1rem;text-align: center;overflow: hidden;border: 1px solid #5d687f;}
+
+.th1{width: 10%;}
+.th2{width: 40%;}
+.th3{width: 15%;}
+.th4{width: 15%;}
+.th5{width: 20%;}
+.th6{width: 0;}
+
+::-webkit-scrollbar{width:0;}
+
