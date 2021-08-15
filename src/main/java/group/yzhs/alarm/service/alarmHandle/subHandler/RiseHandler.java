@@ -94,15 +94,17 @@ public class RiseHandler implements SubHandler {
                             Map<String, LocalDateTime> sessionAudioTime = (Map<String, LocalDateTime>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOPUSHLASTTIME.getCode());
                             if (ObjectUtils.isEmpty(sessionAudioTime.get(triggerRule.getTag())) || sessionAudioTime.get(triggerRule.getTag()).plus(wxPushConfig.getPushIntervalSec(), ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
                                 Map<String, AlarmMessage> audioAlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());
-                                AlarmMessage alarmMessage = AlarmMessage.builder()
-                                        .context(triggerRule.getPushAudioContext())
-                                        .date(new Date())
-                                        .level(0L)
-                                        .product(triggerRule.getProduct().getCode())
-                                        .rate(0.0)
-                                        .value(triggerRule.getValue())
-                                        .build();
-                                audioAlarmMap.put(triggerRule.getTag(), alarmMessage);
+                                synchronized (audioAlarmMap) {
+                                    AlarmMessage alarmMessage = AlarmMessage.builder()
+                                            .context(triggerRule.getPushAudioContext())
+                                            .date(new Date())
+                                            .level(0L)
+                                            .product(triggerRule.getProduct().getCode())
+                                            .rate(0.0)
+                                            .value(triggerRule.getValue())
+                                            .build();
+                                    audioAlarmMap.put(triggerRule.getTag(), alarmMessage);
+                                }
                                 //update
                                 sessionAudioTime.put(triggerRule.getTag(), LocalDateTime.now());
                             }

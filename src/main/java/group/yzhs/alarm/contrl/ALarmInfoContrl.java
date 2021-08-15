@@ -93,23 +93,26 @@ public class ALarmInfoContrl {
     public AlarmDto getAudioAlarmList(HttpSession session) {
 
         Object audioList = session.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());
-
         if ((!ObjectUtils.isEmpty(audioList)) && (!CollectionUtils.isEmpty((Map) audioList))) {
-            Map<String, AlarmMessage> alarmMessageMap=(Map<String, AlarmMessage>) audioList;
-            log.debug("语音报警消息获取成功 size={}",alarmMessageMap.size());
-            List<AlarmMessage> audioContextList=new ArrayList<>();
-            alarmMessageMap.values().forEach(a->{
-                a.setContext(a.getContext().replace("-","负"));
-                audioContextList.add(a);
-            });
-            alarmMessageMap.clear();
-            AlarmDto alarmDto=AlarmDto.builder()
-                    .data(audioContextList)
-                    .message("语音报警消息获取成功")
-                    .status(200)
-                    .size(audioContextList.size())
-                    .build();
-            return alarmDto;
+
+            synchronized (audioList){
+                Map<String, AlarmMessage> alarmMessageMap=(Map<String, AlarmMessage>) audioList;
+                log.debug("语音报警消息获取成功 size={}",alarmMessageMap.size());
+                List<AlarmMessage> audioContextList=new ArrayList<>();
+                alarmMessageMap.forEach((k,v)->{
+                    v.setContext(v.getContext().replace("-","负"));
+                    audioContextList.add(v);
+                });
+                alarmMessageMap.clear();
+                AlarmDto alarmDto=AlarmDto.builder()
+                        .data(audioContextList)
+                        .message("语音报警消息获取成功")
+                        .status(200)
+                        .size(audioContextList.size())
+                        .build();
+                return alarmDto;
+            }
+
         }else{
             AlarmDto alarmDto=AlarmDto.builder()
                     .data(new ArrayList<>())

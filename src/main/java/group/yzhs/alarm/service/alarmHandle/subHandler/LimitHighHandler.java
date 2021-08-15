@@ -98,15 +98,18 @@ public class LimitHighHandler implements SubHandler {
                                 Map<String,LocalDateTime> sessionAudioTime=(Map<String,LocalDateTime>)s.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOPUSHLASTTIME.getCode());
                                 if (ObjectUtils.isEmpty(sessionAudioTime.get(limitRule.getTag())) || sessionAudioTime.get(limitRule.getTag()).plus(wxPushConfig.getPushIntervalSec(), ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
                                     Map<String, AlarmMessage> audioAlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());
-                                    AlarmMessage alarmMessage = AlarmMessage.builder()
-                                            .context(limitRule.getPushAudioContext())
-                                            .date(new Date())
-                                            .level(0L)
-                                            .product(limitRule.getProduct().getCode())
-                                            .rate(0.0)
-                                            .value(limitRule.getValue())
-                                            .build();
-                                    audioAlarmMap.put(limitRule.getTag(), alarmMessage);
+                                    synchronized (audioAlarmMap){
+                                        AlarmMessage alarmMessage = AlarmMessage.builder()
+                                                .context(limitRule.getPushAudioContext())
+                                                .date(new Date())
+                                                .level(0L)
+                                                .product(limitRule.getProduct().getCode())
+                                                .rate(0.0)
+                                                .value(limitRule.getValue())
+                                                .build();
+                                        audioAlarmMap.put(limitRule.getTag(), alarmMessage);
+                                    }
+
                                     //update
                                     sessionAudioTime.put(limitRule.getTag(),LocalDateTime.now());
                                 }
@@ -129,15 +132,18 @@ public class LimitHighHandler implements SubHandler {
                     if (!CollectionUtils.isEmpty(sessionListener.getHttpSessionMap())) {
                         sessionListener.getHttpSessionMap().values().forEach(s -> {
                             Map<String, AlarmMessage> audioAlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());
-                            AlarmMessage alarmMessage = AlarmMessage.builder()
-                                    .context(limitRule.getPushAudioContext())
-                                    .date(new Date())
-                                    .level(0L)
-                                    .product(limitRule.getProduct().getCode())
-                                    .rate(0.0)
-                                    .value(limitRule.getValue())
-                                    .build();
-                            audioAlarmMap.put(limitRule.getTag(), alarmMessage);
+                            synchronized (audioAlarmMap){
+                                AlarmMessage alarmMessage = AlarmMessage.builder()
+                                        .context(limitRule.getPushAudioContext())
+                                        .date(new Date())
+                                        .level(0L)
+                                        .product(limitRule.getProduct().getCode())
+                                        .rate(0.0)
+                                        .value(limitRule.getValue())
+                                        .build();
+                                audioAlarmMap.put(limitRule.getTag(), alarmMessage);
+                            }
+
                         });
                 }
             }
