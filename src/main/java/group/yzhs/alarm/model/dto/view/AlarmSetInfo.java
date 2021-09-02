@@ -16,4 +16,5 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AlarmSetInfo {
     private float audioRate=1.0f;
     private String company;
+    private String version;
 }

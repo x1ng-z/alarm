@@ -3,6 +3,7 @@ package group.yzhs.alarm.contrl;
 
 import group.yzhs.alarm.config.AudioConfig;
 import group.yzhs.alarm.config.CollectorConfig;
+import group.yzhs.alarm.config.VersionInfo;
 import group.yzhs.alarm.constant.SessionContextEnum;
 import group.yzhs.alarm.model.AlarmMessage;
 import group.yzhs.alarm.model.dto.view.AlarmDto;
@@ -38,6 +39,9 @@ public class ALarmInfoContrl {
     @Autowired
     private AudioConfig audioConfig;
 
+    @Autowired
+    private VersionInfo versionInfo;
+
     /**
      *报警基础设置
      * */
@@ -51,6 +55,7 @@ public class ALarmInfoContrl {
         alarmSetInfo.setAudioRate(audioConfig.getRate());
         String company=CollectionUtils.isEmpty(config.getProductionLines())?"":config.getProductionLines().get(0).getName();
         alarmSetInfo.setCompany(company);
+        alarmSetInfo.setVersion(versionInfo.getVersion());
         alarmSetDto.setData(alarmSetInfo);
         return alarmSetDto;
     }

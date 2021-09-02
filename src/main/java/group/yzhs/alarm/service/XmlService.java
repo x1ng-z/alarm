@@ -63,7 +63,7 @@ public class XmlService implements BaseResource {
                     String CompanyNo = ((Element) ProductionLine_Node).getAttribute("PRL_ID");
                     String CompanyName = ((Element) ProductionLine_Node).getAttribute("PRL_NAME");
 
-                    ProductionLine newPL = ProductionLine.builder().name(CompanyName).pNo(CompanyNo).devices(new HashMap<>()).build();
+                    ProductionLine newPL = ProductionLine.builder().name(CompanyName).pNo(CompanyNo).devices(new ArrayList<>()).build();
 
                     NodeList DeviceNodeList = ProductionLine_Node.getChildNodes();
 
@@ -76,7 +76,7 @@ public class XmlService implements BaseResource {
                             String DEV_NAME = DeviceNode.getAttribute("DEV_NAME");
                             String DEV_NO = DeviceNode.getAttribute("DEV_NO");
                             Device device = Device.builder().dNo(DEV_NO).name(DEV_NAME).rules(new ArrayList<>()).build();
-                            newPL.getDevices().put(DEV_NO, device);
+                            newPL.getDevices().add( device);
 
                             NodeList MeasurePointNodeList = DeviceNode.getChildNodes();
                             for (int k = 0; k < MeasurePointNodeList.getLength(); ++k) {

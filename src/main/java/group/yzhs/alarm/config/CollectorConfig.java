@@ -68,7 +68,7 @@ public class CollectorConfig implements InitializingBean {
         productionLines = xmlService.Find();
         log.debug("rule paser comple");
         productionLines.stream().forEach(p -> {
-            p.getDevices().values().stream().forEach(d -> {
+            p.getDevices().stream().forEach(d -> {
                 Map<String, List<BaseRule>> devReules = d.getRules().stream().collect(Collectors.groupingBy(BaseRule::getTag));
                 if (!CollectionUtils.isEmpty(devReules)) {
                     devReules.forEach((k, v) -> {

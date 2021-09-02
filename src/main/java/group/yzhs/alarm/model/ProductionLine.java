@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -14,7 +15,7 @@ public class ProductionLine {
    //标识
    private String pNo;
    //报警工艺（烧成、制成、生料、开停机）
-   private Map<String, Device> devices=null;
+   private List<Device> devices=null;
 
 
 }
