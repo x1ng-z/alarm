@@ -1,4 +1,3 @@
-
 spring:
   application:
     name: alarm
@@ -12,20 +11,20 @@ server:
       timeout: 60s
 
 rules:
-  filelocation: E:\\project\\2021_Project\\alarm\\conf\\Production_Line.xml
+  filelocation: E:\\project\\2021_Project\\alarm\\config\\Production_Line.xml
 
 
 
 collector:
   dataresurce: iot
   innerurl: http://127.0.0.1:8770
-  ioturl: http://192.168.165.208/iot
+  ioturl: http://127.0.0.1/iot
 wx:
   url: http://127.0.0.1:5555/SendMsgAction
   department: 江西鹰鹏DCS自动推送群
-  #发生报警后，在这时间段内不进行报警
+  #发生报警后，在这时间段内不进行报警/推送
   pushIntervalSec: 600
-  # 持续报警状态一段时间，就推送一次
+  # 持续报警状态一段时间，就报警/推送一次
   continueAlarmSec: 600
 
 audio:

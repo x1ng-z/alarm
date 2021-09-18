@@ -102,7 +102,7 @@ public class ALarmInfoContrl {
 
             synchronized (audioList){
                 Map<String, AlarmMessage> alarmMessageMap=(Map<String, AlarmMessage>) audioList;
-                log.debug("语音报警消息获取成功 size={}",alarmMessageMap.size());
+                log.info("语音报警消息获取成功 size={}",alarmMessageMap.size());
                 List<AlarmMessage> audioContextList=new ArrayList<>();
                 alarmMessageMap.forEach((k,v)->{
                     v.setContext(v.getContext().replace("-","负"));

@@ -67,19 +67,23 @@ public class CollectorConfig implements InitializingBean {
 
         productionLines = xmlService.Find();
         log.debug("rule paser comple");
-        productionLines.stream().forEach(p -> {
-            p.getDevices().stream().forEach(d -> {
-                Map<String, List<BaseRule>> devReules = d.getRules().stream().collect(Collectors.groupingBy(BaseRule::getTag));
-                if (!CollectionUtils.isEmpty(devReules)) {
-                    devReules.forEach((k, v) -> {
-                        if (!rules.containsKey(k)) {
-                            rules.put(k, new ArrayList<>());
-                        }
-                        rules.get(k).addAll(v);
-                    });
-                }
+        if(!CollectionUtils.isEmpty(productionLines)){
+
+            productionLines.stream().forEach(p -> {
+                p.getDevices().stream().forEach(d -> {
+                    Map<String, List<BaseRule>> devReules = d.getRules().stream().collect(Collectors.groupingBy(BaseRule::getTag));
+                    if (!CollectionUtils.isEmpty(devReules)) {
+                        devReules.forEach((k, v) -> {
+                            if (!rules.containsKey(k)) {
+                                rules.put(k, new ArrayList<>());
+                            }
+                            rules.get(k).addAll(v);
+                        });
+                    }
+                });
             });
-        });
+        }
+
 
 
         if (!StringUtils.isEmpty(dataresurce)) {

@@ -34,4 +34,7 @@ public class AlarmMessage {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
+    @JSONField(serialize = false)
+    private String alarmId;
+
 }

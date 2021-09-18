@@ -68,6 +68,7 @@ public class LimitHighHandler implements SubHandler {
                         .product(limitRule.getProduct().getCode())
                         .rate(0.0)
                         .value(limitRule.getValue())
+                        .alarmId(getAlaramId(limitRule))
                         .build();
                 alarmMap.put(limitRule.getTag(), alarmMessage);
             });
@@ -79,7 +80,7 @@ public class LimitHighHandler implements SubHandler {
             //之前没在报警状态
             limitRule.setBegionAlarmTime(LocalDateTime.now());
 
-            log.debug(Thread.currentThread() + " LIMIT_HIGH  context:{}", limitRule.getPushWXContext());
+            log.info(Thread.currentThread() + " LIMIT_HIGH  context:{}", limitRule.getPushWXContext());
 
             //微信推送
             if (limitRule.isPushWX() || (limitRule.isAudio())) {
@@ -159,10 +160,19 @@ public class LimitHighHandler implements SubHandler {
         if (limitRule.getProduct().getDisplay()) {
             sessionListener.getHttpSessionMap().values().forEach(s -> {
                 Map<String, AlarmMessage> AlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
-                AlarmMap.remove(limitRule.getTag());
+                AlarmMessage alarmMessage=AlarmMap.get(limitRule.getTag());
+                if(alarmMessage!=null){
+                    if(getAlaramId(limitRule).equals(alarmMessage.getAlarmId())){
+                        AlarmMap.remove(limitRule.getTag());
+                    }
+                }
             });
         }
         limitRule.getIsAlarm().set(false);
+    }
+
+    private String  getAlaramId(BaseRule baseRule){
+        return baseRule.getTag()+baseRule.getAlarmModelEnum().getCode()+baseRule.getSubModel();
     }
 
 

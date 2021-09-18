@@ -1,6 +1,9 @@
 package group.yzhs.alarm.config;
 
+import lombok.Data;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -9,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
  * @date 2021/9/2 11:22
  */
 @Configuration
-@Getter
+@Data
+@ConfigurationProperties(prefix = "app")
 public class VersionInfo {
     private String version="1.21.09.02.1";
 }

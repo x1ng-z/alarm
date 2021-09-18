@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -35,7 +36,11 @@ public class WXPushTools {
     public static   <T> T postForEntity(String url, Object myclass, Class<T> returnClass) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpPost posturl = new HttpPost(url);
-
+        RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(15 * 1000)
+                .setConnectTimeout(10 * 1000)
+                .setConnectionRequestTimeout(5 * 1000)
+                .build();
+        posturl.setConfig(requestConfig);
         String jsonSting = JSON.toJSONString(myclass);
         StringEntity entity = new StringEntity(jsonSting, "UTF-8");
         posturl.setEntity(entity);

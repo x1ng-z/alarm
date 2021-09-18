@@ -67,6 +67,7 @@ public class FallHandler implements SubHandler {
                         .product(triggerRule.getProduct().getCode())
                         .rate(0.0)
                         .value(triggerRule.getValue())
+                        .alarmId(getAlaramId(triggerRule))
                         .build();
                 alarmMap.put(triggerRule.getTag(), alarmMessage);
             });
@@ -75,7 +76,7 @@ public class FallHandler implements SubHandler {
 
         //之前不报警，新出现的报警是需要判断是否需要语音或微信推送的
         if (!triggerRule.getIsAlarm().get()) {
-            log.debug("context:{}", triggerRule.getPushWXContext());
+            log.info("context:{}", triggerRule.getPushWXContext());
             //微信推送
             if (triggerRule.isPushWX() || (triggerRule.isAudio())) {
                 //微信推送
@@ -125,9 +126,18 @@ public class FallHandler implements SubHandler {
         if (triggerRule.getProduct().getDisplay()) {
             sessionListener.getHttpSessionMap().values().forEach(s -> {
                 Map<String, AlarmMessage> AlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
-                AlarmMap.remove(triggerRule.getTag());
+                AlarmMessage alarmMessage=AlarmMap.get(triggerRule.getTag());
+                if(alarmMessage!=null){
+                    if(getAlaramId(triggerRule).equals(alarmMessage.getAlarmId())){
+                        AlarmMap.remove(triggerRule.getTag());
+                    }
+                }
             });
         }
         triggerRule.getIsAlarm().set(false);
+    }
+
+    private String  getAlaramId(BaseRule baseRule){
+        return baseRule.getTag()+baseRule.getAlarmModelEnum().getCode()+baseRule.getSubModel();
     }
 }
