@@ -15,5 +15,5 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @ConfigurationProperties(prefix = "app")
 public class VersionInfo {
-    private String version="1.21.09.02.1";
+    private String version="1.21.09.27.1";
 }

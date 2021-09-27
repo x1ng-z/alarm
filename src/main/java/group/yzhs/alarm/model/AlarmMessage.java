@@ -24,6 +24,7 @@ public class AlarmMessage {
     //报警内容
     private String context;
     //当前值
+    @JSONField(format = "#.###")
     private Double value;
     //变化率
     private Double rate;

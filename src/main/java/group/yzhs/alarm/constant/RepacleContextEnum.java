@@ -29,8 +29,8 @@ public enum RepacleContextEnum {
     REPLACE_VALUE("_value_","值") {
         @Override
         public <T extends BaseRule> void replacePlaceholderContext(T rule) {
-            rule.setPushWXContext(rule.getPushWXContext().replace(getCode(), new DecimalFormat("#.00").format(rule.getValue())));
-            rule.setPushAudioContext(rule.getPushAudioContext().replace(getCode(), new DecimalFormat("#.00").format(rule.getValue())));
+            rule.setPushWXContext(rule.getPushWXContext().replace(getCode(), new DecimalFormat("#.###").format(rule.getValue())));
+            rule.setPushAudioContext(rule.getPushAudioContext().replace(getCode(), new DecimalFormat("#.###").format(rule.getValue())));
 
         }
 
