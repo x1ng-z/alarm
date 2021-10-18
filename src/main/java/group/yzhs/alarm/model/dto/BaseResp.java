@@ -1,19 +1,21 @@
-package group.yzhs.alarm.model.dto.view;
+package group.yzhs.alarm.model.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * @author zzx
  * @version 1.0
- * @date 2021/8/13 16:04
+ * @date 2021/10/16 12:54
  */
-@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlarmSetDto {
+@Data
+public class BaseResp {
+    private Long status;
     private String message;
-    private int status;
-    private AlarmSetInfo data;
+    private Object data;
 }

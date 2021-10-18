@@ -13,6 +13,8 @@ server:
 rules:
   filelocation: E:\\project\\2021_Project\\alarm\\config\\Production_Line.xml
 
+alarm-history-archive: true
+alarm-history-execute-period: 8748000000
 
 
 collector:

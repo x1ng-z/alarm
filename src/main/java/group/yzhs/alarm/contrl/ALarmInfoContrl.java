@@ -6,9 +6,9 @@ import group.yzhs.alarm.config.CollectorConfig;
 import group.yzhs.alarm.config.VersionInfo;
 import group.yzhs.alarm.constant.SessionContextEnum;
 import group.yzhs.alarm.model.AlarmMessage;
-import group.yzhs.alarm.model.dto.view.AlarmDto;
+import group.yzhs.alarm.model.vo.alarm.AlarmDto;
 
-import group.yzhs.alarm.model.dto.view.AlarmSetDto;
+import group.yzhs.alarm.model.vo.alarm.AlarmSetDto;
 import group.yzhs.alarm.model.dto.view.AlarmSetInfo;
 import lombok.extern.slf4j.Slf4j;
 

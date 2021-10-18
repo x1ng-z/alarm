@@ -1,5 +1,7 @@
 package group.yzhs.alarm.constant;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -13,6 +15,8 @@ public enum SessionContextEnum {
     SESSIONCONTEXT_AUDIOLIST("audio-message","语音报警消息"),
     SESSIONCONTEXT_AUDIOPUSHLASTTIME("audio-pushLastTime","语音消息上次播报时间")
     ;
+    @EnumValue
+//    @JsonValue
     private String code;
     private String decs;
 

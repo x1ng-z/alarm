@@ -1,0 +1,25 @@
+package group.yzhs.alarm.contrl;
+
+import group.yzhs.alarm.model.dto.alarm.AlarmRuleDto;
+import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @author zzx
+ * @version 1.0
+ * @date 2021/10/17 22:25
+ */
+@Slf4j
+@RestController
+@RequestMapping("/test")
+public class EnumTestControl {
+
+    @RequestMapping("/enum")
+    public  RestHttpResponseEntity<AlarmRuleDto> test(@RequestBody AlarmRuleDto alarmRuleDto){
+        return RestHttpResponseEntity.success(alarmRuleDto);
+    }
+
+}

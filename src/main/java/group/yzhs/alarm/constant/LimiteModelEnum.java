@@ -1,5 +1,7 @@
 package group.yzhs.alarm.constant;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -19,7 +21,8 @@ public enum LimiteModelEnum {
         this.code = code;
         this.name = name;
     }
-
+    @EnumValue
+//    @JsonValue
     private String code;
     private String name;
 

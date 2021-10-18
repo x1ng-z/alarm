@@ -3,6 +3,8 @@ package group.yzhs.alarm.config;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.*;
 
@@ -31,5 +33,17 @@ public class AppThreadconfig {
                 new LinkedBlockingQueue<Runnable>(1), namedThreadFactory,  new ThreadPoolExecutor.CallerRunsPolicy()/*当执行被阻塞时要使用的处理程序,因为达到了线程界限和队列容量*/);
 
         return pool;
+    }
+
+    @Bean("instanceLogExecutor")
+    public ThreadPoolTaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setThreadNamePrefix("instance-log-executor-");
+        taskExecutor.setCorePoolSize(100);
+        taskExecutor.setMaxPoolSize(150);
+        taskExecutor.setQueueCapacity(30);
+        taskExecutor.setKeepAliveSeconds(15);
+        taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        return taskExecutor;
     }
 }

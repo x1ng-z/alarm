@@ -1,5 +1,10 @@
 package group.yzhs.alarm.constant;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Getter;
 
 /**
@@ -20,5 +25,23 @@ public enum AlarmModelEnum {
     }
 
     private String name;
+
+//    @JsonValue
+    public String getCode() {
+        return code;
+    }
+
+    @EnumValue
     private String code;
+
+//
+//    @JsonCreator
+//    public static AlarmModelEnum getByCode(String code) {
+//        for (AlarmModelEnum value : AlarmModelEnum.values()) {
+//            if (value.getCode().equals(code)) {
+//                return value;
+//            }
+//        }
+//        return null;
+//    }
 }

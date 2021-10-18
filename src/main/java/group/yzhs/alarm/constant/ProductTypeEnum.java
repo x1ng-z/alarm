@@ -1,5 +1,7 @@
 package group.yzhs.alarm.constant;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -14,6 +16,8 @@ public enum ProductTypeEnum {
     PRODUCT_TYPE_ZC("zc","制成",true),
     PRODUCT_TYPE_KTJ("ktj","开停机",false);
 
+    @EnumValue
+//    @JsonValue
     private String code;
     private String decs;
     //是否展示在web页的报警列表中

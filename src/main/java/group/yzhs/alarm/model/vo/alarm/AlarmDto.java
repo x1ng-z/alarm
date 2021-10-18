@@ -1,4 +1,4 @@
-package group.yzhs.alarm.model.dto.view;
+package group.yzhs.alarm.model.vo.alarm;
 
 import group.yzhs.alarm.model.AlarmMessage;
 import lombok.AllArgsConstructor;
