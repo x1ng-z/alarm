@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
  */
 @Data
 public class LimitRule extends BaseRule {
-    private double limitValue;
+//    private double limitValue;
     private LocalDateTime begionAlarmTime;//开始报警时间
 }

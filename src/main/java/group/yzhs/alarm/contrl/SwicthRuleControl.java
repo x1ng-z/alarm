@@ -6,11 +6,10 @@ import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
 import group.yzhs.alarm.service.alarm.SwitchRuleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -48,8 +47,20 @@ public class SwicthRuleControl {
 
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public RestHttpResponseEntity<List<SwitchRuleDto>> get(Long switchId) {
+    public RestHttpResponseEntity<List<SwitchRuleDto>> get(@RequestParam("switchId") Long switchId) {
         return RestHttpResponseEntity.success(switchRuleService.get(switchId));
+    }
+
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    public void export(HttpServletResponse httpServletResponse){
+        switchRuleService.export2(httpServletResponse);
+    }
+
+
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    public RestHttpResponseEntity<Void> imp0rt(@RequestPart("excel-file") MultipartFile file){
+        switchRuleService.imp0rt(file);
+        return RestHttpResponseEntity.success();
     }
 
 

@@ -2,6 +2,8 @@ package group.yzhs.alarm.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
+import group.yzhs.alarm.constant.AlarmPushStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +38,12 @@ public class AlarmMessage {
     private Date date;
 
     @JSONField(serialize = false)
-    private String alarmId;
+    private String alarmId;//用于识别同一点位名称的不同类型报警类型
+
+    //历史报警id
+    private Long alarmHistoryId;
+
+    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
+    private AlarmPushStatusEnum pushStatus;
 
 }

@@ -12,11 +12,9 @@ import javax.validation.constraints.NotNull;
 @Data
 public class SystemConfigDto {
     private Long id;
-    @NotNull(message = "属性名称不能为空")
     private String name ;
-    @NotNull(message = "编码不能为空")
     private String code ;
     @NotNull(message = "属性值不能为空")
     private String value ;
-    private String group;//'属性组别'
+    private String configGroup;//'属性组别'
 }

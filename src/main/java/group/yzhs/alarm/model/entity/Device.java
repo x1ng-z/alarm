@@ -1,5 +1,6 @@
 package group.yzhs.alarm.model.entity;
 
+import group.yzhs.alarm.constant.ProcessEnum;
 import lombok.Data;
 
 /**
@@ -11,4 +12,5 @@ import lombok.Data;
 public class Device extends BaseEntity {
     private String deviceNo;
     private String deviceName;
+    private ProcessEnum process;
 }

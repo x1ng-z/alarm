@@ -1,5 +1,6 @@
 package group.yzhs.alarm.model.entity;
 
+import group.yzhs.alarm.constant.AlarmPushStatusEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,4 +14,7 @@ import java.util.Date;
 public class AlarmHistory extends BaseEntity{
     private String alarmContext;
     private Date alarmTime;
+    private AlarmPushStatusEnum pushStatus;
+    private String deviceNo;
+    private Long refAlarmRuleId;
 }

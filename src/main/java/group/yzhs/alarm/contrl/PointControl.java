@@ -7,8 +7,11 @@ import group.yzhs.alarm.service.alarm.PointService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author zzx
@@ -44,10 +47,24 @@ public class PointControl {
 
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public RestHttpResponseEntity<Void> get(@RequestParam("id") Long deviceId) {
-        pointService.getByDevicId(deviceId);
+    public RestHttpResponseEntity<List<PointDto>> get(@RequestParam("id") Long deviceId) {
+        return RestHttpResponseEntity.success( pointService.getByDevicId(deviceId));
+    }
+
+
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    public void export(HttpServletResponse httpServletResponse){
+        pointService.export(httpServletResponse);
+    }
+
+
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    public RestHttpResponseEntity<Void> imp0rt(@RequestPart("excel-file") MultipartFile file){
+        pointService.imp0rt(file);
         return RestHttpResponseEntity.success();
     }
+
+
 
 
 }

@@ -7,7 +7,6 @@ import group.yzhs.alarm.service.JudgementService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.ObjectUtils;
 
 import java.time.Duration;
 import java.time.Instant;

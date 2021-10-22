@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import group.yzhs.alarm.exception.ParameterException;
-import group.yzhs.alarm.mapper.impl.AlarmRuleMapperImp;
-import group.yzhs.alarm.mapper.impl.AlarmRuleSwitchMapMapperImp;
-import group.yzhs.alarm.mapper.impl.DeviceMapperImp;
-import group.yzhs.alarm.mapper.impl.PointMapperImp;
+import group.yzhs.alarm.mapper.impl.*;
 import group.yzhs.alarm.model.dto.device.DeviceDto;
 import group.yzhs.alarm.model.entity.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -38,6 +36,11 @@ public class DeviceService {
 
     @Autowired
     private PointMapperImp pointMapperImp;
+
+
+    @Autowired
+    private AlarmClassMapperImp alarmClassMapperImp;
+
 
     @Autowired
     private PointService pointService;
@@ -90,6 +93,12 @@ public class DeviceService {
         }
 
         return res;
+    }
+
+
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRES_NEW)
+    public void deleteTranlatioTest(){
+        alarmClassMapperImp.remove(Wrappers.<AlarmClass>lambdaQuery().eq(AlarmClass::getName,"123"));
     }
 
 

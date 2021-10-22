@@ -1,24 +1,34 @@
 package group.yzhs.alarm.service.alarm;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import group.yzhs.alarm.constant.AlarmModelEnum;
-import group.yzhs.alarm.constant.LimiteModelEnum;
-import group.yzhs.alarm.constant.ProductTypeEnum;
-import group.yzhs.alarm.constant.TrigerModelEnum;
+import com.google.common.collect.Lists;
+import group.yzhs.alarm.constant.*;
 import group.yzhs.alarm.exception.ParameterException;
-import group.yzhs.alarm.mapper.impl.AlarmRuleMapperImp;
-import group.yzhs.alarm.mapper.impl.AlarmRuleSwitchMapMapperImp;
+import group.yzhs.alarm.mapper.impl.*;
 import group.yzhs.alarm.model.dto.alarm.AlarmRuleDto;
-import group.yzhs.alarm.model.entity.AlarmRule;
-import group.yzhs.alarm.model.entity.AlarmRuleSwitchMap;
+import group.yzhs.alarm.model.dto.alarm.AlarmRuleExcelDto;
+import group.yzhs.alarm.model.dto.device.PointExcelDto;
+import group.yzhs.alarm.model.entity.*;
+import group.yzhs.alarm.service.valid.Success;
+import group.yzhs.alarm.service.valid.Valider;
+import group.yzhs.alarm.utils.ExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +45,16 @@ public class AlarmRuleService {
 
     @Autowired
     private AlarmRuleSwitchMapMapperImp alarmRuleSwitchMapMapperImp;
+
+    @Autowired
+    private AlarmClassMapperImp alarmClassMapperImp;
+
+    @Autowired
+    private PointMapperImp pointMapperImp;
+
+
+    @Autowired
+    private SwitchMapperImp switchMapperImp;
 
     private final static Map<String,LimiteModelEnum> modelEnumMap;
     private final static Map<String,AlarmModelEnum> alarmModelEnumMap;
@@ -78,6 +98,110 @@ public class AlarmRuleService {
         return alarmRuleDto;
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAlarmRuleAndSwitchMapmping(AlarmRule alarmRule,String[] swicthNames,String errorPrefix){
+        if(0!=swicthNames.length){
+            //删除规则映射
+            if(ObjectUtils.isNotEmpty(alarmRule.getId())){
+                //移除先前的映射
+                alarmRuleSwitchMapMapperImp.remove(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().eq(AlarmRuleSwitchMap::getRefAlarmRuleId,alarmRule.getId()));
+                //更新报警配置
+                alarmRuleMapperImp.updateById(alarmRule);
+
+            }else{
+                //添加新的报警规则
+                alarmRuleMapperImp.save(alarmRule);
+            }
+            for(String switchName: swicthNames){
+                //查询开关
+                Switch aSwitch=switchMapperImp.getOne(Wrappers.<Switch>lambdaQuery().eq(Switch::getName,switchName));
+                if(ObjectUtils.isNotEmpty(aSwitch)){
+                    //插入映射
+                    AlarmRuleSwitchMap alarmRuleSwitchMap= new AlarmRuleSwitchMap();
+                    alarmRuleSwitchMap.setRefAlarmRuleId(alarmRule.getId());
+                    alarmRuleSwitchMap.setRefSwitchId(aSwitch.getId());
+                    alarmRuleSwitchMapMapperImp.save(alarmRuleSwitchMap);
+                }else {
+                    throw new ParameterException(String.format("%s 开关不存在",errorPrefix));
+                }
+
+            }
+
+        }
+    }
+
+
+
+
+    public void export(HttpServletResponse response){
+        List<String> headcontext=Arrays.asList("id(不能修改)","主报警模式","次报警模式","报警类别","位号(节点编码=位号)","报警组","限制值","报警内容(占位符：_time_(时间内容填充),_value(数据填充))","是否语音报警","是否微信推送","报警开关(多个开关用=分割)");
+        List<List<String>> head = excelHead("点位报警规则",headcontext);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        //下拉选项主报警模式
+        List<String> alarmModleList=AlarmModelEnum.ALARM_MODEL_ENUM_MAP.values().stream().map(a->a.getName()+"="+a.getCode()).collect(Collectors.toList());
+        //下拉选项次报警模式
+        List<String> subalarmModleList=LimiteModelEnum.LIMITE_MODEL_ENUM_MAP.values().stream().map(a->a.getName()+"="+a.getCode()).collect(Collectors.toList());
+        subalarmModleList.addAll(TrigerModelEnum.TRIGER_MODEL_ENUM_MAP.values().stream().map(a->a.getName()+"="+a.getCode()).collect(Collectors.toList()));
+        //报警类别
+        List<String> selectAlarmClassList=alarmClassMapperImp.list().stream().map(a->a.getName()+"="+a.getCode()).collect(Collectors.toList());
+        //报警组
+        List<String> selectAlarmGroupList=ProductTypeEnum.PRODUCT_TYPE_ENUM_MAP.values().stream().map(a->a.getDecs()+"="+a.getCode()).collect(Collectors.toList());
+        //是否语音报警
+        List<String> selectIsAudio=Lists.newArrayList("FALSE","TRUE");
+
+        //报警开关
+        List<String> selectAlarmSwitch=switchMapperImp.list().stream().map(s->s.getName()).collect(Collectors.toList());
+        try {
+            String fileName = URLEncoder.encode("点位报警规则", "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+            EasyExcel.write(response.getOutputStream())
+                    .head(head)
+                    .sheet("模板")
+                    //下拉选项主报警模式
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,1,1,alarmModleList))
+                    //下拉选项次报警模式
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,2,2, subalarmModleList))
+                    //报警类别
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,3,3, selectAlarmClassList))
+                    //报警组
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,5,5, selectAlarmGroupList))
+                    //是否语音报警
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,8,8, selectIsAudio))
+                    //是否微信推送
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,9,9, selectIsAudio))
+                    //报警开关
+                    .registerWriteHandler(new ExcelUtils.DownSelectWriteHandler(2,10000,10,10, selectAlarmSwitch))
+                    .doWrite(excelData());
+        } catch (IOException e) {
+            log.error(e.getMessage(),e);
+            throw new ParameterException("导出点位报警规则.xlsx异常");
+        }
+    }
+
+
+    public void imp0rt(MultipartFile file,AlarmRuleService alarmRuleService){
+        if(!file.getOriginalFilename().endsWith(".xlsx")){
+            throw new ParameterException("请上传.xlsx格式文件");
+        }
+        //数据解析,只解析5000条数据
+        try {
+            EasyExcel.read(file.getInputStream(),
+                    AlarmRuleExcelDto.class,
+                    new ReadExcleLisenter(5000,pointMapperImp,alarmClassMapperImp,alarmRuleMapperImp,alarmRuleSwitchMapMapperImp,switchMapperImp,alarmRuleService))
+                    .headRowNumber(2)
+                    .sheet()
+                    .doRead();
+        } catch (IOException e) {
+            log.error(e.getMessage(),e);
+            throw new ParameterException("文件处理异常");
+        }
+    }
+
+
+
+
     public List<AlarmRuleDto> getByPointId(Long pointId){
         Optional.ofNullable(pointId).orElseThrow(()->new ParameterException("点位id不能为空"));
         List<AlarmRule> alarmRuleList=alarmRuleMapperImp.list(Wrappers.<AlarmRule>lambdaQuery().eq(AlarmRule::getPointId,pointId));
@@ -116,7 +240,7 @@ public class AlarmRuleService {
 
         Boolean isValidTmAlarmMod=Arrays.stream(TrigerModelEnum.values()).anyMatch(tm->{
             if(tm.getCode().equals(alarmRuleDto.getAlarmSubMode())){
-                alarmRule.setGroup(producttypeEnum.get(tm.getCode()));
+                alarmRule.setAlarmGroup(producttypeEnum.get(tm.getCode()));
                 return true;
             }
             return false;
@@ -131,8 +255,8 @@ public class AlarmRuleService {
 
         /*报警组的校验*/
         Boolean groupCheck=Arrays.stream(ProductTypeEnum.values()).anyMatch(pt->{
-            if(pt.getCode().equals(alarmRuleDto.getGroup())){
-                alarmRule.setGroup(producttypeEnum.get(pt.getCode()));
+            if(pt.getCode().equals(alarmRuleDto.getAlarmGroup())){
+                alarmRule.setAlarmGroup(producttypeEnum.get(pt.getCode()));
                 return true;
             }
             return false;
@@ -149,6 +273,257 @@ public class AlarmRuleService {
         return alarmRule;
     }
 
+
+
+
+
+    /**
+     * 动态生成表头
+     * */
+    private List<List<String>> excelHead(String title, List<String> headcontext) {
+        /*表头数据*/
+        List<List<String>> list = new ArrayList<List<String>>();
+
+        headcontext.forEach(h->{
+            List<String> head0 = new ArrayList<String>();
+            head0.addAll(Lists.newArrayList(title,h));
+            list.add(head0);
+        });
+        return list;
+    }
+
+
+    /**
+     * 表单数据
+     * */
+    private List<AlarmRuleExcelDto> excelData(){
+        List<AlarmRuleExcelDto> res=new ArrayList<>();
+        /*查询转化规则*/
+        List<AlarmRule> pointList=alarmRuleMapperImp.list();
+
+        if(CollectionUtils.isNotEmpty(pointList)){
+            pointList.forEach(s->{
+                AlarmRuleExcelDto alarmRuleExcelDto=new AlarmRuleExcelDto();
+
+                alarmRuleExcelDto.setId(s.getId().toString());
+
+                alarmRuleExcelDto.setAlarmMode(AlarmModelEnum.ALARM_MODEL_ENUM_MAP.get(s.getAlarmMode()).getName()+"="+AlarmModelEnum.ALARM_MODEL_ENUM_MAP.get(s.getAlarmMode()).getCode());
+
+                String subAlarmMode=Optional.ofNullable(LimiteModelEnum.LIMITE_MODEL_ENUM_MAP.get(s.getAlarmSubMode()))
+                        .map(p->p.getName()+"="+p.getCode())
+                        .orElseGet(()->TrigerModelEnum.TRIGER_MODEL_ENUM_MAP.get(s.getAlarmSubMode()).getName()+"="+TrigerModelEnum.TRIGER_MODEL_ENUM_MAP.get(s.getAlarmSubMode()).getCode());
+                alarmRuleExcelDto.setAlarmSubMode(subAlarmMode);
+
+                alarmRuleExcelDto.setAlarmTemple(s.getAlarmTemple());
+
+                AlarmClass alarmClass =alarmClassMapperImp.getById(s.getAlarmClassId());
+                alarmRuleExcelDto.setAlarmClass(alarmClass.getName()+"="+alarmClass.getCode());
+
+                alarmRuleExcelDto.setIsAudio(s.getIsAudio());
+                alarmRuleExcelDto.setIsWxPush(s.getIsWxPush());
+
+                alarmRuleExcelDto.setLimiteValue(s.getLimiteValue());
+
+                ProductTypeEnum alarmGroup=ProductTypeEnum.PRODUCT_TYPE_ENUM_MAP.get(s.getAlarmGroup().getCode());
+                alarmRuleExcelDto.setAlarmGroup(alarmGroup.getDecs()+"="+alarmGroup.getCode());
+
+                Point point=pointMapperImp.getById(s.getPointId());
+                alarmRuleExcelDto.setPoint(point.getNodeCode()+"="+point.getTag());
+                StringJoiner alarmSwitchNameList=new StringJoiner("=");
+                List<AlarmRuleSwitchMap> alarmRuleSwitchMapList=alarmRuleSwitchMapMapperImp.list(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().eq(AlarmRuleSwitchMap::getRefAlarmRuleId,s.getId()));
+                List<Switch> switchList=new ArrayList<>();
+                if(CollectionUtils.isNotEmpty(alarmRuleSwitchMapList)){
+                    switchList=switchMapperImp.list(Wrappers.<Switch>lambdaQuery().in(Switch::getId,alarmRuleSwitchMapList.stream().map(AlarmRuleSwitchMap::getRefSwitchId).distinct().collect(Collectors.toList())));
+                }
+                switchList.forEach(a->{alarmSwitchNameList.add(a.getName());});
+                alarmRuleExcelDto.setAlarmSwitch(alarmSwitchNameList.toString());
+                res.add(alarmRuleExcelDto);
+            });
+
+        }
+        return res;
+    }
+
+    //读excle监听类
+    public static class ReadExcleLisenter extends AnalysisEventListener<AlarmRuleExcelDto> {
+        private final int batchCount;
+        private PointMapperImp pointMapperImp;
+        private AlarmClassMapperImp alarmClassMapperImp;
+        private AlarmRuleMapperImp alarmRuleMapperImp;
+       private AlarmRuleSwitchMapMapperImp alarmRuleSwitchMapMapperImp;
+       private  SwitchMapperImp switchMapperImp;
+       private AlarmRuleService alarmRuleService;
+        public ReadExcleLisenter(int batchCount
+                , PointMapperImp pointMapperImp
+                ,AlarmClassMapperImp alarmClassMapperImp
+                                 ,AlarmRuleMapperImp alarmRuleMapperImp
+                                 ,AlarmRuleSwitchMapMapperImp alarmRuleSwitchMapMapperImp
+                                 ,SwitchMapperImp switchMapperImp
+                                 ,AlarmRuleService alarmRuleService
+        ) {
+            this.batchCount= batchCount;
+            this.pointMapperImp=pointMapperImp;
+            this.alarmClassMapperImp=alarmClassMapperImp;
+            this.alarmRuleMapperImp=alarmRuleMapperImp;
+            this. alarmRuleSwitchMapMapperImp= alarmRuleSwitchMapMapperImp;
+            this.switchMapperImp=switchMapperImp;
+            this.alarmRuleService=alarmRuleService;
+        }
+
+        @Override
+        public void invoke(AlarmRuleExcelDto data, AnalysisContext context) {
+            int rowIndex=context.readRowHolder().getRowIndex()+1;//第几行
+//            log.info("rowIndex={}",rowIndex);
+            AlarmRule alarmRule=new AlarmRule();
+            //id
+            Valider.valid(false,data.getId().toString(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[0])){
+                        AlarmRule existAlarmRule=alarmRuleMapperImp.getById(Long.parseLong(value[0]));
+                        if(ObjectUtils.isNotEmpty(existAlarmRule)){
+                            object.setId(Long.parseLong(value[0].trim())); return true;
+                        }
+                    }
+                    throw new ParameterException(String.format("%s 为空",errormessage));
+                }
+            },alarmRule,String.format("第%d行id",rowIndex));
+            //报警模式
+            Valider.valid(true,data.getAlarmMode(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[1])){
+                        AlarmModelEnum alarmModelEnum=AlarmModelEnum.ALARM_MODEL_ENUM_MAP.get(value[1]);
+                        if(ObjectUtils.isNotEmpty(alarmModelEnum)){
+                            object.setAlarmMode(alarmModelEnum.getCode()); return true;
+                        }
+
+                    }
+                    throw new ParameterException(String.format("%s 为空",errormessage));
+                }
+            },alarmRule,String.format("第%d报警模式",rowIndex));
+            //次报警模式
+            Valider.valid(true,data.getAlarmSubMode(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[1])){
+                        String subAlarmModel=Optional.ofNullable(LimiteModelEnum.LIMITE_MODEL_ENUM_MAP.get(value[1])).map(p->p.getCode()).orElseGet(()->TrigerModelEnum.TRIGER_MODEL_ENUM_MAP.get(value[1]).getCode());
+                        object.setAlarmSubMode(subAlarmModel); return true;
+                    }
+                    throw new ParameterException(String.format("%s 为空",errormessage));
+                }
+            },alarmRule,String.format("第%d次报警模式",rowIndex));
+            //报警类别
+            Valider.valid(true,data.getAlarmClass(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[1])){
+                        //查询设备是否存在
+                        AlarmClass alarmClass=alarmClassMapperImp.getOne(Wrappers.<AlarmClass>lambdaQuery().eq(AlarmClass::getCode,value[1]));
+                        if(ObjectUtils.isNotEmpty(alarmClass)){
+                            object.setAlarmClassId(alarmClass.getId()); return true;
+                        }
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行报警类别",rowIndex));
+            //位号
+            Valider.valid(true,data.getPoint(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[1])){
+                        //查询设备是否存在
+                        Point point=pointMapperImp.getOne(Wrappers.<Point>lambdaQuery().eq(Point::getNodeCode,value[0]).eq(Point::getTag,value[1]));
+                        if(ObjectUtils.isNotEmpty(point)){
+                            object.setPointId(point.getId()); return true;
+                        }
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行位号",rowIndex));
+            //报警组
+            Valider.valid(true,data.getAlarmGroup(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[1])){
+                        //查询报警组是否存在
+                        ProductTypeEnum productTypeEnum=Optional.ofNullable(ProductTypeEnum.PRODUCT_TYPE_ENUM_MAP.get(value[1])).orElseThrow(()->new ParameterException(String.format("%s 设置错误",errormessage)));
+                        if(ObjectUtils.isNotEmpty(productTypeEnum)){
+                            object.setAlarmGroup(productTypeEnum); return true;
+                        }
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行报警组",rowIndex));
+            //限制值
+            Valider.valid(false,data.getLimiteValue().toString(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[0])){
+                        object.setLimiteValue(BigDecimal.valueOf(Double.valueOf(value[0]))); return true;
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行限制值",rowIndex));
+            //报警内容
+            Valider.valid(false,data.getAlarmTemple(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[0])){
+                        //查询报警组是否存在
+                            object.setAlarmTemple(value[0]); return true;
+
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行报警内容",rowIndex));
+            //是否语音
+            Valider.valid(false,data.getIsAudio().toString(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[0])){
+                        //查询报警组是否存在
+                        object.setIsAudio(Boolean.valueOf(value[0])); return true;
+
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行是否语音",rowIndex));
+            //是否微信推送
+            Valider.valid(false,data.getIsWxPush().toString(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    if(StringUtils.isNotBlank(value[0])){
+                        //查询报警组是否存在
+                        object.setIsWxPush(Boolean.valueOf(value[0])); return true;
+
+                    }
+                    throw new ParameterException(String.format("%s 为空或没有配置",errormessage));
+                }
+            },alarmRule,String.format("第%d行是否微信推送",rowIndex));
+            //报警开关
+            Valider.valid(false,data.getAlarmSwitch(), new Success<AlarmRule>(){
+                @Override
+                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                    String[] switchNames=value[0].split("=");
+                    //最后的数据更新
+                    alarmRuleService.updateAlarmRuleAndSwitchMapmping(object,switchNames,errormessage);
+                    return true;
+                }
+            },alarmRule,String.format("第%d行报警开关",rowIndex));
+        }
+
+
+        @Override
+        public void doAfterAllAnalysed(AnalysisContext context) {
+
+        }
+
+    }
+
+
+
+
     @Deprecated
     private AlarmRuleDto copyAlarmRule(AlarmRule alarmRule){
         return AlarmRuleDto.builder()
@@ -160,7 +535,11 @@ public class AlarmRuleService {
                 .id(alarmRule.getId())
                 .pointId(alarmRule.getPointId())
                 .limiteValue(alarmRule.getLimiteValue())
-                .group(alarmRule.getGroup()/*.getCode()*/)
+                .alarmGroup(alarmRule.getAlarmGroup()/*.getCode()*/)
                 .build();
     }
+
+
+
+
 }

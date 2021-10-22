@@ -15,6 +15,11 @@ import java.util.concurrent.*;
  */
 @Configuration
 public class AppThreadconfig {
+
+    static {
+        //设置stream paralle线程数量
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "100");
+    }
     @Bean
     public ExecutorService threadpool(){
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
@@ -30,7 +35,7 @@ public class AppThreadconfig {
          * */
         ExecutorService pool = new ThreadPoolExecutor(10/* 线程池维护的线程数量，即使其中有闲置线程*/, 100/*线程池能容纳的最大线程数量*/,
                 60L/*当前线程数量超出CORE_POOL_SIZE时，过量线程在开始任务前的等待时间，超时将被关闭*/, TimeUnit.MILLISECONDS,/*KEEP_ALIVE_TIME的单位*/
-                new LinkedBlockingQueue<Runnable>(1), namedThreadFactory,  new ThreadPoolExecutor.CallerRunsPolicy()/*当执行被阻塞时要使用的处理程序,因为达到了线程界限和队列容量*/);
+                new LinkedBlockingQueue<Runnable>(10), namedThreadFactory/*当执行被阻塞时要使用的处理程序,因为达到了线程界限和队列容量*/);
 
         return pool;
     }
@@ -43,7 +48,7 @@ public class AppThreadconfig {
         taskExecutor.setMaxPoolSize(150);
         taskExecutor.setQueueCapacity(30);
         taskExecutor.setKeepAliveSeconds(15);
-        taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         return taskExecutor;
     }
 }

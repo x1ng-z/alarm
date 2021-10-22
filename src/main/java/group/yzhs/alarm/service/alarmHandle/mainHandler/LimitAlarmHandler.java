@@ -56,15 +56,15 @@ public class LimitAlarmHandler implements Handler {
         synchronized (rule){
             LimitRule limitRule = (LimitRule) rule;
             //推送内容替换为模板内容
-            limitRule.setPushWXContext(limitRule.getTemplate());
-            limitRule.setPushAudioContext(limitRule.getTemplate());
+            limitRule.setPushWXContext(limitRule.getAlarmTemple());
+            limitRule.setPushAudioContext(limitRule.getAlarmTemple());
             //微信推送/语音报警内容替换
             Arrays.stream(RepacleContextEnum.values()).forEach(rp -> {
                 rp.replacePlaceholderContext(limitRule);
                 rp.removePlaceholderContext(limitRule);
             });
 
-            SubHandler subHandler=getHandlerPool().get(limitRule.getSubModel());
+            SubHandler subHandler=getHandlerPool().get(limitRule.getAlarmSubMode());
             if(!ObjectUtils.isEmpty(subHandler)){
                 subHandler.handle(limitRule);
             }

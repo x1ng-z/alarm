@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class NodeInstanceLogArchiveJob /*implements InitializingBean*/ {
-    /*m默认30天删除一次*/
-    private static final Long DEFAULT_EXECUTE_PERIOD=30*24 * 3600 * 1000L;
+    /*m默认1天删除一次*/
+    private static final Long DEFAULT_EXECUTE_PERIOD=1*24 * 3600 * 1000L;
 
     private AlarmHistoryMapperImp alarmHistoryMapperImp;
     private ThreadPoolTaskScheduler taskScheduler;

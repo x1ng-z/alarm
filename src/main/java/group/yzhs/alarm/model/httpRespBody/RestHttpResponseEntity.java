@@ -30,7 +30,7 @@ public class RestHttpResponseEntity<T> implements Serializable {
     }
 
     public static <T> RestHttpResponseEntity<T> error(String message){
-        RestHttpResponseEntity<T> response=new RestHttpResponseEntity<T>();
+        RestHttpResponseEntity<T> response=new RestHttpResponseEntity<>();
         response.message=message;
         response.status= HttpStatus.INTERNAL_SERVER_ERROR.value();
         return response;
@@ -54,6 +54,7 @@ public class RestHttpResponseEntity<T> implements Serializable {
     public static <T> RestHttpResponseEntity<T> success(T data){
         RestHttpResponseEntity<T> response=new RestHttpResponseEntity<T>();
         response.data=data;
+        response.message="operate success!";
         response.status= HttpStatus.OK.value();
         return response;
     }

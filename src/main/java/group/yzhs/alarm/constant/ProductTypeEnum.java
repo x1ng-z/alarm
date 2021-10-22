@@ -4,6 +4,10 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author zzx
  * @version 1.0
@@ -27,5 +31,15 @@ public enum ProductTypeEnum {
         this.code = code;
         this.decs = decs;
         this.display=display;
+    }
+
+
+    public static final Map<String,ProductTypeEnum> PRODUCT_TYPE_ENUM_MAP;
+
+    static {
+        PRODUCT_TYPE_ENUM_MAP=new HashMap<>();
+        Arrays.stream(ProductTypeEnum.values()).forEach(a->{
+            PRODUCT_TYPE_ENUM_MAP.put(a.getCode(),a);
+        });
     }
 }

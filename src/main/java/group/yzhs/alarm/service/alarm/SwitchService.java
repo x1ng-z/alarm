@@ -37,6 +37,10 @@ public class SwitchService {
 
     @Transactional(rollbackFor = Exception.class)
     public void add(SwitchDto switchDto){
+        List<Switch> dbres=switchMapperImp.list(Wrappers.<Switch>lambdaQuery().eq(Switch::getName,switchDto.getName()));
+        if(CollectionUtils.isNotEmpty(dbres)){
+            throw new ParameterException("重复的开关名称");
+        }
         Switch aSwitch=new Switch();
         BeanUtils.copyProperties(switchDto,aSwitch);
         switchMapperImp.save(aSwitch);
@@ -55,6 +59,13 @@ public class SwitchService {
     @Transactional(rollbackFor = Exception.class)
     public void update(SwitchDto switchDto){
         Optional.ofNullable(switchDto).map(SwitchDto::getId).orElseThrow(()->new ParameterException("开关id为空"));
+
+        List<Switch> dbres=switchMapperImp.list(Wrappers.<Switch>lambdaQuery().eq(Switch::getName,switchDto.getName()));
+        if(CollectionUtils.isNotEmpty(dbres)&&dbres.size()>1){
+            throw new ParameterException("重复的开关名称");
+        }
+
+
         Switch aSwitch=new Switch();
         BeanUtils.copyProperties(switchDto,aSwitch);
         switchMapperImp.updateById(aSwitch);

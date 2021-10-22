@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author zzx
  * @version 1.0
@@ -22,6 +26,17 @@ public enum AlarmModelEnum {
     AlarmModelEnum(String name, String code) {
         this.name = name;
         this.code = code;
+    }
+
+
+
+    public static final Map<String,AlarmModelEnum> ALARM_MODEL_ENUM_MAP;
+
+    static {
+        ALARM_MODEL_ENUM_MAP=new HashMap<>();
+        Arrays.stream(AlarmModelEnum.values()).forEach(a->{
+            ALARM_MODEL_ENUM_MAP.put(a.getCode(),a);
+        });
     }
 
     private String name;

@@ -18,7 +18,8 @@ public class AlarmRule extends BaseEntity{
     private Long alarmClassId;
     private Long pointId;
     //'报警组：ktj，sl，sc，zc
-    private ProductTypeEnum group;
+    private ProductTypeEnum alarmGroup;
     private BigDecimal limiteValue;
     private String alarmTemple;
+    private Boolean isWxPush ;
 }

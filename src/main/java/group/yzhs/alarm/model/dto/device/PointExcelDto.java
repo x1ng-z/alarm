@@ -1,6 +1,8 @@
-package group.yzhs.alarm.model.entity;
+package group.yzhs.alarm.model.dto.device;
 
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author zzx
@@ -8,9 +10,10 @@ import lombok.Data;
  * @date 2021/10/16 10:13
  */
 @Data
-public class Point extends BaseEntity {
+public class PointExcelDto {
     private String tag;
     private String name;
-    private Long refDeviceId;
     private String nodeCode;
+    private String refDevice;
+
 }

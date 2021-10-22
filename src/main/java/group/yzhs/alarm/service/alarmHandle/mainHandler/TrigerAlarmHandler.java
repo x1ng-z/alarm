@@ -57,8 +57,8 @@ public class TrigerAlarmHandler implements Handler {
             TriggerRule triggerRule = (TriggerRule) rule;
 
             //推送内容替换为模板内容
-            triggerRule.setPushWXContext(triggerRule.getTemplate());
-            triggerRule.setPushAudioContext(triggerRule.getTemplate());
+            triggerRule.setPushWXContext(triggerRule.getAlarmTemple());
+            triggerRule.setPushAudioContext(triggerRule.getAlarmTemple());
             //内容替换
             Arrays.stream(RepacleContextEnum.values()).forEach(rp -> {
                 rp.replacePlaceholderContext(triggerRule);
@@ -69,7 +69,7 @@ public class TrigerAlarmHandler implements Handler {
                 triggerRule.setLastvalue(triggerRule.getValue());
             }
 
-            SubHandler subHandler=getHandlerPool().get(triggerRule.getSubModel());
+            SubHandler subHandler=getHandlerPool().get(triggerRule.getAlarmSubMode());
             if(!ObjectUtils.isEmpty(subHandler)){
                 subHandler.handle(triggerRule);
             }

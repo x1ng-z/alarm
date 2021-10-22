@@ -20,25 +20,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AlarmRuleDto {
-    private Long id;
-    @NotNull(message = "alarmMode 不能为空")
+public class AlarmRuleExcelDto {
+    private String id;
     private String  alarmMode    ;
-    @NotNull(message = "alarmSubMode 不能为空")
     private String alarmSubMode ;
-
-    private Boolean isAudio ;
-    private Long alarmClassId;
-    @NotNull(message = "pointId 不能为空")
-    private Long pointId;
+    private String alarmClass;
+    private String point;
     //'报警组：ktj，sl，sc，zc
-    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
-    @NotNull(message = "group 不能为空")
-    private  ProductTypeEnum alarmGroup;
-//    @NotNull(message = "limiteValue 不能为空")
+    private  String alarmGroup;
     private BigDecimal limiteValue;
-    @NotNull(message = "alarmTemple 不能为空")
     private String alarmTemple;
-    @NotNull(message = "是否微信推送不能为空")
+    private Boolean isAudio ;
     private Boolean isWxPush ;
+    private String alarmSwitch;
 }

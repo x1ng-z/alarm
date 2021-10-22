@@ -51,14 +51,15 @@ public class SystemConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void update(SystemConfigDto systemConfigDto){
         Optional.ofNullable(systemConfigDto).map(SystemConfigDto::getId).orElseThrow(()->new ParameterException("系统配置id为空"));
-
+        /*
         List<SystemConfig> db_res=systemConfigMapperImp.list(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode,systemConfigDto.getCode()));
         if(CollectionUtils.isNotEmpty(db_res)&&db_res.size()>1){
             throw new ParameterException("编码已经存在");
-        }
+        }*/
+
         SystemConfig systemConfig=new SystemConfig();
         BeanUtils.copyProperties(systemConfigDto,systemConfig);
-        systemConfigMapperImp.updateById(systemConfig);
+        systemConfigMapperImp.update(Wrappers.<SystemConfig>lambdaUpdate().eq(SystemConfig::getId,systemConfigDto.getId()).set(SystemConfig::getValue,systemConfigDto.getValue()));
     }
 
     public List<SystemConfigDto> get(){

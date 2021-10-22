@@ -6,7 +6,9 @@ import group.yzhs.alarm.service.alarm.AlarmRuleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -43,6 +45,22 @@ public class AlarmRuleControl {
     public RestHttpResponseEntity<AlarmRuleDto> getById(@RequestParam("id") Long id) {
         return RestHttpResponseEntity.success(alarmRuleService.getById(id));
     }
+
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    public void export(HttpServletResponse httpServletResponse){
+        alarmRuleService.export(httpServletResponse);
+    }
+
+    //数据解析,只解析5000条数据
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    public RestHttpResponseEntity<Void> imp0rt(@RequestPart("excel-file") MultipartFile file){
+        alarmRuleService.imp0rt(file,alarmRuleService);
+        return RestHttpResponseEntity.success();
+    }
+
+
+
+
 
 
 }

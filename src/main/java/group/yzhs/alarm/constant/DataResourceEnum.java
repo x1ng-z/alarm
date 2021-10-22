@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author zzx
  * @version 1.0
@@ -25,4 +29,14 @@ public enum DataResourceEnum {
         this.code = code;
         this.decs = decs;
     }
+
+    public static final Map<String,DataResourceEnum> DATA_RESOURCE_ENUM_MAP;
+
+    static {
+        DATA_RESOURCE_ENUM_MAP=new HashMap<>();
+        Arrays.stream(DataResourceEnum.values()).forEach(a->{
+            DATA_RESOURCE_ENUM_MAP.put(a.getCode(),a);
+        });
+    }
+
 }

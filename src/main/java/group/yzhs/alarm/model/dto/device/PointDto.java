@@ -18,4 +18,6 @@ public class PointDto {
     private String name;
     @NotNull(message = "引用的设备id不能为空")
     private Long refDeviceId;
+    @NotNull(message = "位号节点编码不能空")
+    private String nodeCode;
 }

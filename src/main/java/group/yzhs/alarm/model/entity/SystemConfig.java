@@ -12,5 +12,5 @@ public class SystemConfig extends BaseEntity {
     private String name ;
     private String code ;
     private String value ;
-     private String group;//'属性组别'
+     private String configGroup;//'属性组别'
 }

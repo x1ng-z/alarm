@@ -53,8 +53,8 @@ public class ALarmInfoContrl {
         alarmSetDto.setMessage("报警基础配置信息");
         AlarmSetInfo alarmSetInfo=new AlarmSetInfo();
         alarmSetInfo.setAudioRate(audioConfig.getRate());
-        String company=CollectionUtils.isEmpty(config.getProductionLines())?"":config.getProductionLines().get(0).getName();
-        alarmSetInfo.setCompany(company);
+//        String company=CollectionUtils.isEmpty(config.getProductionLines())?"":config.getProductionLines().get(0).getName();
+        alarmSetInfo.setCompany("company");
         alarmSetInfo.setVersion(versionInfo.getVersion());
         alarmSetDto.setData(alarmSetInfo);
         return alarmSetDto;

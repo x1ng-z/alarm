@@ -26,10 +26,7 @@ import java.util.List;
 @RestControllerAdvice
 public class RestHttpExceptionHandler {
 
-    @ExceptionHandler(value =Exception.class )
-    public RestHttpResponseEntity<Object> exceptionHandler(HttpServletRequest httpServlet, Exception e){
-        return RestHttpResponseEntity.error("系统异常");
-    }
+
     //参数异常
     @ExceptionHandler(value = ParameterException.class )
     public RestHttpResponseEntity<Object> parameterExceptionHandler(HttpServletRequest httpServlet, ParameterException e){
@@ -76,5 +73,12 @@ public class RestHttpExceptionHandler {
 
         return  RestHttpResponseEntity.error(errorMessage.toString(), HttpStatus.BAD_REQUEST.value());
     }
+
+    @ExceptionHandler(value =Exception.class )
+    public RestHttpResponseEntity<Object> exceptionHandler(HttpServletRequest httpServlet, Exception e){
+        log.error(e.getMessage(),e);
+        return RestHttpResponseEntity.error(String.format("系统异常:%s",e.getMessage()));
+    }
+
 
 }
