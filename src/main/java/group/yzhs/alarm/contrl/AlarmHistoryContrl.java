@@ -58,4 +58,11 @@ public class AlarmHistoryContrl {
         return RestHttpResponseEntity.success(alarmHistoryService.get(id));
     }
 
+
+    @RequestMapping(value = "/push/{id}",method = RequestMethod.GET)
+    public RestHttpResponseEntity<Void> pushAlarmHistory(@PathVariable("id") Long id){
+        alarmHistoryService.push(id);
+        return RestHttpResponseEntity.success();
+    }
+
 }

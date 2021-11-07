@@ -51,9 +51,14 @@ public class PointService {
     @Autowired
     private DeviceMapperImp deviceMapperImp;
 
+    @Autowired
+    private SwitchRuleMapperImp switchRuleMapperImp;
 
     @Autowired
     private DeviceService deviceService;
+
+    @Autowired
+    private PointService pointService;
 
     @Transactional(rollbackFor = Exception.class)
     public void add(PointDto pointDto){
@@ -62,7 +67,7 @@ public class PointService {
         if(CollectionUtils.isEmpty(devices)){
             throw new ParameterException("不存在指定id的设备");
         }
-        List<Point> existPoints=pointMapperImp.list(Wrappers.<Point>lambdaQuery().eq(Point::getTag,pointDto.getTag()).eq(Point::getNodeCode,pointDto.getNodeCode()));
+        List<Point> existPoints=pointMapperImp.list(Wrappers.<Point>lambdaQuery().nested(i->i.eq(Point::getTag,pointDto.getTag()).eq(Point::getNodeCode,pointDto.getNodeCode())).or(i->i.eq(Point::getName,pointDto.getName())));
         if(CollectionUtils.isEmpty(existPoints)){
             Point point=new Point();
             BeanUtils.copyProperties(pointDto,point);
@@ -84,7 +89,14 @@ public class PointService {
             alarmRuleDtos.forEach(a->{
                 alarmRuleService.delete(a.getId());
             });
+            //删除点位与开关的映射规则
+            List<Long> ruleIds=alarmRuleDtos.stream().map(AlarmRuleDto::getId).distinct().collect(Collectors.toList());
+            alarmRuleSwitchMapMapperImp.remove(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().in(AlarmRuleSwitchMap::getRefAlarmRuleId,ruleIds));
+
         }
+        //删除开关规则
+        switchRuleMapperImp.remove(Wrappers.<SwitchRule>lambdaQuery().eq(SwitchRule::getPointId,id));
+
         //删除点位
         pointMapperImp.remove(Wrappers.<Point>lambdaQuery().eq(Point::getId,id));
     }
@@ -92,6 +104,12 @@ public class PointService {
     @Transactional(rollbackFor = Exception.class)
     public void update(PointDto pointDto){
         Optional.ofNullable(pointDto).map(PointDto::getId).orElseThrow(()->new ParameterException("点位id为空"));
+
+        List<Point> existPoints=pointMapperImp.list(Wrappers.<Point>lambdaQuery().nested(i->i.eq(Point::getTag,pointDto.getTag()).eq(Point::getNodeCode,pointDto.getNodeCode())).or(i->i.eq(Point::getName,pointDto.getName())));
+        boolean isExist=existPoints.stream().anyMatch(p->!(p.getId().equals(pointDto)));
+        if(isExist){
+            throw new ParameterException("位号名称或编码相同");
+        }
         Point point=new Point();
         BeanUtils.copyProperties(pointDto,point);
         pointMapperImp.updateById(point);
@@ -100,6 +118,20 @@ public class PointService {
     public List<PointDto> getByDevicId(Long deviceId){
         Optional.ofNullable(deviceId).orElseThrow(()->new ParameterException("设备id为空"));
         List<Point> db_res=pointMapperImp.list(Wrappers.<Point>lambdaQuery().eq(Point::getRefDeviceId,deviceId));
+        List<PointDto> res=new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(db_res)){
+            db_res.forEach(d->{
+                PointDto pointDto=new PointDto();
+                BeanUtils.copyProperties(d,pointDto);
+                res.add(pointDto);
+            });
+        }
+
+        return res;
+    }
+
+    public List<PointDto> list(){
+        List<Point> db_res=pointMapperImp.list();
         List<PointDto> res=new ArrayList<>();
         if(CollectionUtils.isNotEmpty(db_res)){
             db_res.forEach(d->{
@@ -154,7 +186,7 @@ public class PointService {
         }
         //数据解析,只解析5000条数据
         try {
-            EasyExcel.read(file.getInputStream(), PointExcelDto.class, new ReadExcleLisenter(5000,pointMapperImp,deviceMapperImp)).headRowNumber(2).sheet().doRead();
+            EasyExcel.read(file.getInputStream(), PointExcelDto.class, new ReadExcleLisenter(5000,pointMapperImp,deviceMapperImp,pointService)).headRowNumber(2).sheet().doRead();
         } catch (IOException e) {
             log.error(e.getMessage(),e);
             throw new ParameterException("文件处理异常");
@@ -212,14 +244,19 @@ public class PointService {
     public static class ReadExcleLisenter extends AnalysisEventListener<PointExcelDto> {
         private final int batchCount;
         private PointMapperImp pointMapperImp;
+
         private DeviceMapperImp deviceMapperImp;
+        private PointService pointService;
+
         public ReadExcleLisenter(int batchCount
                 , PointMapperImp pointMapperImp
                 , DeviceMapperImp deviceMapperImp
+                , PointService pointService
         ) {
             this.batchCount= batchCount;
             this.pointMapperImp=pointMapperImp;
             this.deviceMapperImp=deviceMapperImp;
+            this.pointService=pointService;
         }
 
         @Override
@@ -272,9 +309,11 @@ public class PointService {
                 }
             },point,String.format("第%d行设备名称",rowIndex));
             //检查有无数据，有数据就进行更新，无数据就直接插入
-            Point existPoint=pointMapperImp.getOne(Wrappers.<Point>lambdaQuery().eq(Point::getNodeCode,point.getNodeCode()).eq(Point::getTag,point.getTag()));
-            if(ObjectUtils.isNotEmpty(existPoint)){
-                point.setId(existPoint.getId());
+           List<Point>  existPoint=pointMapperImp.list(Wrappers.<Point>lambdaQuery().eq(Point::getNodeCode,point.getNodeCode()).eq(Point::getTag,point.getTag()));
+            if(existPoint.size()<=1){
+                point.setId(existPoint.size()==1?existPoint.get(0).getId():null);
+            }else{
+                throw new ParameterException(String.format("%s=%s 点位编码不唯一",point.getNodeCode(),point.getTag()));
             }
             pointMapperImp.saveOrUpdate(point);
         }

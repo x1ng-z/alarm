@@ -25,6 +25,7 @@ public class ExecuteCycle {
 
     @Pointcut("execution(* group.yzhs.alarm.service.JudgementService.judge())")
     public void trackJudgement() {
+
     }
 
     @Around("trackJudgement()")
@@ -37,7 +38,7 @@ public class ExecuteCycle {
            throw throwable;
         }finally {
             Long endTime=System.currentTimeMillis();
-            log.debug("judgement cost time={}",endTime-startTime);
+            log.info("judgement cost time={} milli",endTime-startTime);
         }
     }
 

@@ -18,14 +18,17 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
+@ConfigurationProperties(prefix = "alarm")
 public class AlarmHistoryArchiveConfig {
 
     /**
      * 组件实例运行日志归档定时任务开关 默认true打开
      */
-    @Value("${alarm-history-archive:true}")
-    private Boolean archive;
+//    @Value("${alarm-history-archive:true}")
+    private Boolean alarmHistoryArchive;
 
-    @Value("${alarm-history-execute-period:8748000000}")//30days
-    private Long period;
+//    @Value("${alarm-history-execute-period:8748000000}")//30days
+    private Long alarmHistoryExecutePeriod;
+
+    private String alarmPush;
 }

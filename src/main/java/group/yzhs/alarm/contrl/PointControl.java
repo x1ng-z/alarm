@@ -51,6 +51,11 @@ public class PointControl {
         return RestHttpResponseEntity.success( pointService.getByDevicId(deviceId));
     }
 
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public RestHttpResponseEntity<List<PointDto>> list() {
+        return RestHttpResponseEntity.success( pointService.list());
+    }
+
 
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     public void export(HttpServletResponse httpServletResponse){

@@ -1,6 +1,7 @@
 package group.yzhs.alarm.contrl;
 
 import group.yzhs.alarm.model.dto.alarm.AlarmRuleSwitchMapDto;
+import group.yzhs.alarm.model.entity.AlarmRuleSwitchMap;
 import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
 import group.yzhs.alarm.service.alarm.AlarmRuleSwitchMapService;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author zzx
@@ -41,7 +43,14 @@ public class AlarmRuleSwitchMapServiceControl {
         return RestHttpResponseEntity.success();
     }
 
+    //alarm_rule_id find switch
 
+
+
+    @RequestMapping(value = "/getByAlarmRuleId/{id}",method = RequestMethod.GET)
+    public RestHttpResponseEntity<List<AlarmRuleSwitchMapDto>> getByAlarmRuleId(@PathVariable("id") Long alarmRuleid){
+        return RestHttpResponseEntity.success(alarmRuleSwitchMapService.getByAlarmRuleId(alarmRuleid));
+    }
 
 
 }

@@ -786,3 +786,40 @@ id=213
 无
 <br><br>
 
+
+## 获取实时报警列表
+**接口描述**
+
+* 获取实时报警列表
+
+**请求 URL**
+
+* /alarm/alarmList
+
+**请求方式**
+
+* GET
+
+**请求参数**
+无
+**返回参数**
+{"data":[
+        {
+            "level":0,
+            "context":"123",//报警内容
+            "value":123,//当前值
+             "rate":123,//变化率
+            "product":"sl",//工序
+            "date":"yyyy-MM-dd HH:mm:ss",
+            "alarmId":1231,//用于识别同一点位名称的不同类型报警类型
+            "alarmHistoryId":123, //历史报警id
+            "pushStatus":1//1,"报警生成",2,"设备语音报警",3,"推送设备健康"
+        }
+],
+"message":"1213",
+ "status":200,
+"size":1,
+}
+
+<br><br>
+

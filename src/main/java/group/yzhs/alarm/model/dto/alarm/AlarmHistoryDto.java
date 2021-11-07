@@ -22,6 +22,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlarmHistoryDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     @NotNull(message="报警内容不能为空")
     private String alarmContext;

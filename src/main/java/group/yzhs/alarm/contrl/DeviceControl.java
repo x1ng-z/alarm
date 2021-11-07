@@ -1,5 +1,6 @@
 package group.yzhs.alarm.contrl;
 
+import com.alibaba.fastjson.JSON;
 import group.yzhs.alarm.model.dto.alarm.AlarmRuleDto;
 import group.yzhs.alarm.model.dto.device.DeviceDto;
 import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
@@ -26,6 +27,7 @@ public class DeviceControl {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public RestHttpResponseEntity<Void> add(@Valid @RequestBody DeviceDto deviceDto) {
+        System.out.println(JSON.toJSONString(deviceDto));
         deviceService.add(deviceDto);
         return RestHttpResponseEntity.success();
     }

@@ -3,11 +3,14 @@ package group.yzhs.alarm.service.alarm;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import group.yzhs.alarm.exception.ParameterException;
+import group.yzhs.alarm.mapper.AlarmRuleSwitchMapMapper;
+import group.yzhs.alarm.mapper.impl.AlarmRuleSwitchMapMapperImp;
 import group.yzhs.alarm.mapper.impl.PointMapperImp;
 import group.yzhs.alarm.mapper.impl.SwitchMapperImp;
 import group.yzhs.alarm.mapper.impl.SwitchRuleMapperImp;
 import group.yzhs.alarm.model.dto.device.PointDto;
 import group.yzhs.alarm.model.dto.device.SwitchDto;
+import group.yzhs.alarm.model.entity.AlarmRuleSwitchMap;
 import group.yzhs.alarm.model.entity.Point;
 import group.yzhs.alarm.model.entity.Switch;
 import group.yzhs.alarm.model.entity.SwitchRule;
@@ -35,6 +38,9 @@ public class SwitchService {
     @Autowired
     private SwitchRuleMapperImp switchRuleMapperImp;
 
+    @Autowired
+    private AlarmRuleSwitchMapMapperImp alarmRuleSwitchMapMapperImp;
+
     @Transactional(rollbackFor = Exception.class)
     public void add(SwitchDto switchDto){
         List<Switch> dbres=switchMapperImp.list(Wrappers.<Switch>lambdaQuery().eq(Switch::getName,switchDto.getName()));
@@ -50,10 +56,13 @@ public class SwitchService {
     public void delete(Long id){
         Optional.ofNullable(id).orElseThrow(()->new ParameterException("开关id为空"));
         Switch aSwitch=switchMapperImp.getById(id);
+        Optional.ofNullable(aSwitch).orElseThrow(()->new ParameterException("开关不存在"));
         //删除开关的规则
         switchRuleMapperImp.remove(Wrappers.<SwitchRule>lambdaQuery().eq(SwitchRule::getRefSwitchId,id));
         //删除开关
         switchMapperImp.remove(Wrappers.<Switch>lambdaQuery().eq(Switch::getId,id));
+        //删除点位与开关的映射
+        alarmRuleSwitchMapMapperImp.remove(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().eq(AlarmRuleSwitchMap::getRefSwitchId,id));
     }
 
     @Transactional(rollbackFor = Exception.class)

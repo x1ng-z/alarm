@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>group.yzhs</groupId>
     <artifactId>alarm</artifactId>
-    <version>1.21.1021.1</version>
+    <version>1.1.21.${maven.build.timestamp}</version>
     <name>alarm</name>
     <description>alarm report for yongzhong hongshi</description>
 
@@ -13,6 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.3.7.RELEASE</spring-boot.version>
+        <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
     </properties>
 
     <dependencies>

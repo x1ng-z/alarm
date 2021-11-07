@@ -1,5 +1,7 @@
 package group.yzhs.alarm.model.dto.device;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import group.yzhs.alarm.constant.DeviceSwitchRuleEnum;
 import lombok.Data;
 
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
  */
 @Data
 public class SwitchRuleExcelDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private String id;
     private String refSwitch;//switchname;
     private String ruleCode;//desc=code

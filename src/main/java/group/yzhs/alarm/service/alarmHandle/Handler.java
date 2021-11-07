@@ -9,5 +9,5 @@ import group.yzhs.alarm.model.rule.BaseRule;
  */
 public interface Handler {
     String getCode();
-    void handle(BaseRule rule);
+    void handle(BaseRule rule,boolean isSwitch);
 }

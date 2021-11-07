@@ -1,5 +1,7 @@
 package group.yzhs.alarm.model.dto.device;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class PointDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     @NotNull(message = "位号名称不能为空")
     private String tag;

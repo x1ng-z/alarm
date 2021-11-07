@@ -11,6 +11,7 @@ import group.yzhs.alarm.model.rule.BaseRule;
 import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import group.yzhs.alarm.service.alarmHandle.Handler;
 import group.yzhs.alarm.service.alarmHandle.SubHandler;
+import group.yzhs.alarm.service.alarmHandle.subHandler.BaseTrigerHandler;
 import group.yzhs.alarm.utils.WXPushTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class TrigerAlarmHandler implements Handler {
     private WXPushConfig wxPushConfig;
 
     @Autowired
-    private List<SubHandler> subHandlerList;
+    private List<BaseTrigerHandler> subHandlerList;
 
     private Map<String, SubHandler> handlerPool = new HashMap<>();
 
@@ -51,7 +52,7 @@ public class TrigerAlarmHandler implements Handler {
     }
 
     @Override
-    public void handle(BaseRule rule) {
+    public void handle(BaseRule rule,boolean isSwitch) {
 
         synchronized (rule) {
             TriggerRule triggerRule = (TriggerRule) rule;
@@ -71,7 +72,7 @@ public class TrigerAlarmHandler implements Handler {
 
             SubHandler subHandler=getHandlerPool().get(triggerRule.getAlarmSubMode());
             if(!ObjectUtils.isEmpty(subHandler)){
-                subHandler.handle(triggerRule);
+                subHandler.handle(triggerRule,isSwitch);
             }
             //更新上一次的值
             triggerRule.setLastvalue(triggerRule.getValue());

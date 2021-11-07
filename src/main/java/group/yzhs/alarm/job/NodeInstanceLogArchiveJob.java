@@ -45,10 +45,10 @@ public class NodeInstanceLogArchiveJob /*implements InitializingBean*/ {
     @PostConstruct
     public  void init(){
         if(localFuture==null){
-            PeriodicTrigger periodicTrigger=new PeriodicTrigger(archive.getPeriod() <= 0 ? DEFAULT_EXECUTE_PERIOD : archive.getPeriod(), TimeUnit.MILLISECONDS);
+            PeriodicTrigger periodicTrigger=new PeriodicTrigger(archive.getAlarmHistoryExecutePeriod() <= 0 ? DEFAULT_EXECUTE_PERIOD : archive.getAlarmHistoryExecutePeriod(), TimeUnit.MILLISECONDS);
             periodicTrigger.setInitialDelay(30*60*1000L);
             localFuture = taskScheduler.schedule(new LogExe(archive,alarmHistoryMapperImp), periodicTrigger);
-            log.info("init execute period={}", archive.getPeriod());
+            log.info("init execute period={}", archive.getAlarmHistoryExecutePeriod());
         }
 
     }
@@ -72,7 +72,7 @@ public class NodeInstanceLogArchiveJob /*implements InitializingBean*/ {
 
         public void timer() {
             try {
-                if (!archive.getArchive()) {
+                if (!archive.getAlarmHistoryArchive()) {
                     return;
                 }
                 log.info("报警历史归档定时任务开始...");

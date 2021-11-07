@@ -1,14 +1,18 @@
 package group.yzhs.alarm.service.alarmHandle.subHandler;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import group.yzhs.alarm.config.WXPushConfig;
 import group.yzhs.alarm.constant.AlarmPushStatusEnum;
 import group.yzhs.alarm.constant.SessionContextEnum;
+import group.yzhs.alarm.constant.SysConfigEnum;
 import group.yzhs.alarm.listener.SessionListener;
 import group.yzhs.alarm.mapper.impl.AlarmHistoryMapperImp;
 import group.yzhs.alarm.mapper.impl.PointMapperImp;
+import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.AlarmMessage;
 import group.yzhs.alarm.model.entity.AlarmHistory;
 import group.yzhs.alarm.model.entity.Point;
+import group.yzhs.alarm.model.entity.SystemConfig;
 import group.yzhs.alarm.model.rule.BaseRule;
 import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import group.yzhs.alarm.service.alarmHandle.SubHandler;
@@ -20,8 +24,11 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zzx
@@ -41,12 +48,14 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
 
     private AlarmHistoryMapperImp alarmHistoryMapperImp;
+    private SystemConfigMapperImp systemConfigMapperImp;
 
-    public BaseTrigerHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp) {
+    public BaseTrigerHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp,SystemConfigMapperImp systemConfigMapperImp) {
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
+        this.systemConfigMapperImp= systemConfigMapperImp;
     }
 
     public abstract  void alarmHandle(BaseRule triggerRule);
@@ -63,19 +72,19 @@ public abstract class BaseTrigerHandler implements SubHandler {
             //之前没发送报警，保存到数据库中
             newAlarmHistory=new AlarmHistory();
             newAlarmHistory.setAlarmContext(triggerRule.getPushWXContext());
-            newAlarmHistory.setAlarmTime(new Date());
+            newAlarmHistory.setCreateTime(new Date());
             newAlarmHistory.setRefAlarmRuleId(triggerRule.getId());
             newAlarmHistory.setPushStatus(AlarmPushStatusEnum.ALARM_PUSH_STATUS_PRODUCT);
             alarmHistoryMapperImp.save(newAlarmHistory);
         }
 
         if (triggerRule.getAlarmGroup().getDisplay()) {
+            log.debug(" TRG context:{}", triggerRule.getPushWXContext());
             AlarmHistory finalAlarmHistory = newAlarmHistory;
             sessionListener.getHttpSessionMap().values().forEach(s -> {
                 Map<String, AlarmMessage> alarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
                 AlarmMessage alarmMessage=null;
-                //获取旧的报警
-                AlarmMessage oldAlarmMessage=alarmMap.get(triggerRule.getIotNode()+"="+triggerRule.getTag());
+
                 if(!ObjectUtils.isEmpty(finalAlarmHistory)){
                     //新报警
                     alarmMessage= AlarmMessage.builder()
@@ -91,6 +100,8 @@ public abstract class BaseTrigerHandler implements SubHandler {
                             .build();
                 }else{
                     //旧的报警，查询推送状态
+                    //获取旧的报警
+                    AlarmMessage oldAlarmMessage=alarmMap.get(triggerRule.getIotNode()+"="+triggerRule.getTag());
                     if(!ObjectUtils.isEmpty(oldAlarmMessage)){
                         AlarmHistory existAlarmHistory=alarmHistoryMapperImp.getById(oldAlarmMessage.getAlarmHistoryId());
                         if(!ObjectUtils.isEmpty(existAlarmHistory)){
@@ -107,6 +118,22 @@ public abstract class BaseTrigerHandler implements SubHandler {
                                     .build();
                         }
 
+                    }else{
+                        //旧的报警，但是用户是新的，所以需要从数据库中查询以下
+                        AlarmHistory alarmHistory=alarmHistoryMapperImp.getLastAlatmHistoryByNodeTag(triggerRule.getId());
+                        if(!ObjectUtils.isEmpty(alarmHistory)){
+                            alarmMessage= AlarmMessage.builder()
+                                    .context(triggerRule.getPushAudioContext())
+                                    .date(new Date())
+                                    .level(0L)
+                                    .product(triggerRule.getAlarmGroup().getCode())
+                                    .rate(0.0)
+                                    .value(triggerRule.getValue())
+                                    .alarmId(getAlaramId(triggerRule))
+                                    .pushStatus(alarmHistory.getPushStatus())
+                                    .alarmHistoryId(alarmHistory.getId())
+                                    .build();
+                        }
                     }
                 }
 
@@ -120,14 +147,18 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
         //之前不报警，新出现的报警是需要判断是否需要语音或微信推送的
         if (!triggerRule.getIsAlarm().get()) {
-            log.info("context:{}", triggerRule.getPushWXContext());
+
 
             //微信推送
             if (triggerRule.getIsWxPush() || (triggerRule.getIsAudio())) {
                 //微信推送
-                if (triggerRule.getIsWxPush()) {
-                    if (ObjectUtils.isEmpty(triggerRule.getPushWXLastTime()) || triggerRule.getPushWXLastTime().plus(wxPushConfig.getPushIntervalSec(), ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
-                        WXPushTools.sendwx(wxPushConfig.getUrl(), triggerRule.getPushWXContext(), wxPushConfig.getDepartment());
+                List<String> wxconfig= Arrays.asList(SysConfigEnum.SYS_CONFIG_pushIntervalSec.getCode(),SysConfigEnum.SYS_CONFIG_department.getCode(),SysConfigEnum.SYS_CONFIG_url.getCode());
+                List<SystemConfig> systemConfigs =systemConfigMapperImp.list(Wrappers.<SystemConfig>lambdaQuery().in(SystemConfig::getCode,wxconfig));
+                Map<String,SystemConfig>systemConfigMap=systemConfigs.stream().collect(Collectors.toMap(SystemConfig::getCode, p->p,(o, n)->n));
+
+                if (triggerRule.getIsWxPush()&&systemConfigMap.size()==3) {
+                    if (ObjectUtils.isEmpty(triggerRule.getPushWXLastTime()) || triggerRule.getPushWXLastTime().plus(Long.parseLong(systemConfigMap.get(SysConfigEnum.SYS_CONFIG_pushIntervalSec.getCode()).getValue())/*wxPushConfig.getPushIntervalSec()*/, ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
+                        WXPushTools.sendwx(systemConfigMap.get(SysConfigEnum.SYS_CONFIG_url.getCode()).getValue()/*wxPushConfig.getUrl()*/, triggerRule.getPushWXContext(),systemConfigMap.get(SysConfigEnum.SYS_CONFIG_department.getCode()).getValue() /*wxPushConfig.getDepartment()*/);
                         triggerRule.setPushWXLastTime(LocalDateTime.now());
                     }
                 }

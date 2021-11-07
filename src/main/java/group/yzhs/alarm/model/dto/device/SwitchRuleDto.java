@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 @Data
 public class SwitchRuleDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     @NotNull(message = "开关id不能为空")
     private Long refSwitchId;
@@ -26,5 +27,7 @@ public class SwitchRuleDto {
     private Long pointId;
     @NotNull(message = "限制值不能为空")
     private BigDecimal limitValue;
+
+    private String pointName;
 
 }

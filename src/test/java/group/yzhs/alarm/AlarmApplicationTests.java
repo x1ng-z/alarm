@@ -47,8 +47,8 @@ class AlarmApplicationTests {
         System.out.println(nn.isBefore(LocalDateTime.now()));
 
 
-            List<ProductionLine>  productionLines=judgementService.getXmlService().Find();
-        System.out.println(productionLines.size());
+//            List<ProductionLine>  productionLines=judgementService.getXmlService().Find();
+//        System.out.println(productionLines.size());
 
     }
 

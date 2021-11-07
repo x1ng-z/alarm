@@ -17,4 +17,6 @@ public interface AlarmHistoryMapper extends BaseMapper<AlarmHistory> {
      * 删除过期的报警
      * */
     int deleteExpiredHistory(@Param("time") Date time);
+
+    Date getMaxCreateByNodeTag(@Param("alarmRuleId")Long alarmRuleId);
 }

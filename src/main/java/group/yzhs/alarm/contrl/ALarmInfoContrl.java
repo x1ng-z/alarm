@@ -1,27 +1,38 @@
 package group.yzhs.alarm.contrl;
 
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import group.yzhs.alarm.config.AudioConfig;
 import group.yzhs.alarm.config.CollectorConfig;
 import group.yzhs.alarm.config.VersionInfo;
 import group.yzhs.alarm.constant.SessionContextEnum;
+import group.yzhs.alarm.constant.SysConfigEnum;
+import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.AlarmMessage;
+import group.yzhs.alarm.model.entity.SystemConfig;
+import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
 import group.yzhs.alarm.model.vo.alarm.AlarmDto;
 
 import group.yzhs.alarm.model.vo.alarm.AlarmSetDto;
 import group.yzhs.alarm.model.dto.view.AlarmSetInfo;
+import group.yzhs.alarm.service.alarm.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static group.yzhs.alarm.constant.SysConfigEnum.SYS_CONFIG_rate;
 
 /**
  * @author zzx
@@ -42,6 +53,11 @@ public class ALarmInfoContrl {
     @Autowired
     private VersionInfo versionInfo;
 
+    @Autowired
+    private SystemConfigService systemConfigService;
+
+    @Autowired
+    private SystemConfigMapperImp systemConfigMapperImp;
     /**
      *报警基础设置
      * */
@@ -52,9 +68,15 @@ public class ALarmInfoContrl {
         alarmSetDto.setStatus(200);
         alarmSetDto.setMessage("报警基础配置信息");
         AlarmSetInfo alarmSetInfo=new AlarmSetInfo();
-        alarmSetInfo.setAudioRate(audioConfig.getRate());
-//        String company=CollectionUtils.isEmpty(config.getProductionLines())?"":config.getProductionLines().get(0).getName();
-        alarmSetInfo.setCompany("company");
+
+        SystemConfig  audioConfigValue=systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode,SYS_CONFIG_rate.getCode()));
+        if(!ObjectUtils.isEmpty(audioConfigValue)){
+            alarmSetInfo.setAudioRate(Float.parseFloat(audioConfigValue.getValue()));
+        }else{
+            alarmSetInfo.setAudioRate(audioConfig.getRate());
+        }
+        SystemConfig  companyNameConfigValue=systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SysConfigEnum.SYS_CONFIG_companyName.getCode()));
+        alarmSetInfo.setCompany(companyNameConfigValue.getValue());
         alarmSetInfo.setVersion(versionInfo.getVersion());
         alarmSetDto.setData(alarmSetInfo);
         return alarmSetDto;
@@ -66,7 +88,7 @@ public class ALarmInfoContrl {
     /**
      * 获取报警列表
      * **/
-    @RequestMapping("alarmList")
+    @RequestMapping(value = "alarmList",method = RequestMethod.GET)
     public AlarmDto getAlarmInfo(HttpSession session) {
 
         Object alarmList = session.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
@@ -94,7 +116,7 @@ public class ALarmInfoContrl {
     /**
      * 获取语音报警消息
      * */
-    @RequestMapping("audioAlarmList")
+    @RequestMapping(value = "audioAlarmList",method = RequestMethod.GET)
     public AlarmDto getAudioAlarmList(HttpSession session) {
 
         Object audioList = session.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());

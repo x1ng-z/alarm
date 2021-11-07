@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +71,18 @@ public class AlarmRuleSwitchMapService {
         BeanUtils.copyProperties(alarmRuleSwitchMapDto,alarmRuleSwitchMap);
 
         alarmRuleSwitchMapMapperImp.updateById(alarmRuleSwitchMap);
+    }
+
+
+    public  List<AlarmRuleSwitchMapDto> getByAlarmRuleId(Long alarmRuleId){
+        List<AlarmRuleSwitchMap> ruleSwitchMaps=alarmRuleSwitchMapMapperImp.list(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().eq(AlarmRuleSwitchMap::getRefAlarmRuleId,alarmRuleId));
+        List<AlarmRuleSwitchMapDto> alarmRuleSwitchMapDtoList=new ArrayList<>();
+        ruleSwitchMaps.forEach(r->{
+            AlarmRuleSwitchMapDto alarmRuleSwitchMapDto=new AlarmRuleSwitchMapDto();
+            BeanUtils.copyProperties(r,alarmRuleSwitchMapDto);
+            alarmRuleSwitchMapDtoList.add(alarmRuleSwitchMapDto);
+        });
+        return alarmRuleSwitchMapDtoList;
     }
 
 }

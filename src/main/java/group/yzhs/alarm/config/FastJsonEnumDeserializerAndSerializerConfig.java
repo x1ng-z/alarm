@@ -6,6 +6,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
+import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.baomidou.mybatisplus.annotation.EnumValue;
@@ -211,4 +212,23 @@ public class FastJsonEnumDeserializerAndSerializerConfig {
         }
     }
 
-}
+
+
+    @Slf4j
+    public static class LongToStringSerializer implements ObjectSerializer {
+        public static final LongToStringSerializer instance = new LongToStringSerializer();
+
+        @Override
+        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+            SerializeWriter out = serializer.out;
+            if (object == null) {
+                out.writeNull();
+                return;
+            }
+            String strVal = object.toString();
+            out.writeString(strVal);
+        }
+    }
+
+
+    }

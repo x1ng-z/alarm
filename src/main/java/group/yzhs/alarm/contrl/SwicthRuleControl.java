@@ -46,10 +46,11 @@ public class SwicthRuleControl {
     }
 
 
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public RestHttpResponseEntity<List<SwitchRuleDto>> get(@RequestParam("switchId") Long switchId) {
+    @RequestMapping(value = "/getBySwitchId/{id}", method = RequestMethod.GET)
+    public RestHttpResponseEntity<List<SwitchRuleDto>> getBySwitchId(@PathVariable("id") Long switchId) {
         return RestHttpResponseEntity.success(switchRuleService.get(switchId));
     }
+
 
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     public void export(HttpServletResponse httpServletResponse){

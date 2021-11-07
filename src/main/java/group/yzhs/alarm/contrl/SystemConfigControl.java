@@ -3,6 +3,7 @@ package group.yzhs.alarm.contrl;
 import group.yzhs.alarm.model.dto.alarm.SystemConfigDto;
 import group.yzhs.alarm.model.dto.device.SwitchRuleDto;
 import group.yzhs.alarm.model.httpRespBody.RestHttpResponseEntity;
+import group.yzhs.alarm.service.JudgementService;
 import group.yzhs.alarm.service.alarm.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class SystemConfigControl {
     @Autowired
     private SystemConfigService systemConfigService;
 
+    @Autowired
+    private JudgementService judgementService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public RestHttpResponseEntity<Void> add(@Valid @RequestBody SystemConfigDto systemConfigDto) {
@@ -51,6 +54,14 @@ public class SystemConfigControl {
     public RestHttpResponseEntity<List<SystemConfigDto>> get() {
         return RestHttpResponseEntity.success(systemConfigService.get());
     }
+
+
+    @RequestMapping(value = "/errorMessage", method = RequestMethod.GET)
+    public RestHttpResponseEntity<String> errorMessage() {
+        return RestHttpResponseEntity.success(judgementService.getErrormessage());
+    }
+
+
 
 
 }

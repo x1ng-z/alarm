@@ -9,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class AlarmRuleSwitchMap extends BaseEntity {
+
     private Long refAlarmRuleId;
     private Long refSwitchId;
 }

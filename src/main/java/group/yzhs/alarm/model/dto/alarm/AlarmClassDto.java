@@ -1,5 +1,8 @@
 package group.yzhs.alarm.model.dto.alarm;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class AlarmClassDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     @NotNull(message="报警类别名称不能为空")
     private String name;

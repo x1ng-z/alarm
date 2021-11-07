@@ -1,5 +1,7 @@
 package group.yzhs.alarm.model.dto.alarm;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class SystemConfigDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     private String name ;
     private String code ;

@@ -30,6 +30,12 @@ public class AlarmRuleControl {
         return RestHttpResponseEntity.success();
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public RestHttpResponseEntity<Void> update(@Valid @RequestBody AlarmRuleDto alarmRuleDto) {
+        alarmRuleService.update(alarmRuleDto);
+        return RestHttpResponseEntity.success();
+    }
+
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     public RestHttpResponseEntity<Void> delete(@RequestParam("id") Long id) {
         alarmRuleService.delete(id);

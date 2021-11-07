@@ -7,5 +7,10 @@
         delete from alarm_history where create_time &lt;= #{time}
     </delete>
 
+<!--    Date getMaxCreateByNodeTag(@Param("nodeTag")String nodeTage);-->
+    <select id="getMaxCreateByNodeTag" resultType="java.util.Date" parameterType="java.lang.Long">
+        select Max(create_time) from alarm_history where ref_alarm_rule_id=#{alarmRuleId}
+    </select>
+
 
 </mapper>

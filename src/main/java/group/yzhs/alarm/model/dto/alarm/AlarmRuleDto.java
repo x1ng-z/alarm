@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class AlarmRuleDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long id;
     @NotNull(message = "alarmMode 不能为空")
     private String  alarmMode    ;
@@ -28,8 +29,10 @@ public class AlarmRuleDto {
     private String alarmSubMode ;
 
     private Boolean isAudio ;
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long alarmClassId;
     @NotNull(message = "pointId 不能为空")
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long pointId;
     //'报警组：ktj，sl，sc，zc
     @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)

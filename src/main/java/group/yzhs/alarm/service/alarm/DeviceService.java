@@ -47,6 +47,12 @@ public class DeviceService {
 
     @Transactional(rollbackFor = Exception.class)
     public void add(DeviceDto deviceDto){
+        //查询是否存在相同的设备名
+        List<Device> deviceList=deviceMapperImp.list(Wrappers.<Device>lambdaQuery().eq(Device::getDeviceName,deviceDto.getDeviceName()));
+        if(deviceList.size()>0){
+            throw new ParameterException("设备名称重复");
+        }
+
         Device device=new Device();
         BeanUtils.copyProperties(deviceDto,device);
         deviceMapperImp.save(device);
@@ -61,7 +67,7 @@ public class DeviceService {
         List<Point> pointList=pointMapperImp.list(Wrappers.<Point>lambdaQuery().eq(Point::getRefDeviceId,device.getId()));
         if(ObjectUtils.isNotEmpty(device)){
             if(CollectionUtils.isNotEmpty(pointList)){
-                //删除所有相关点位
+                //删除所有相关点位数据
                 pointList.forEach(p->{pointService.delete(p.getId());});
             }
             /*删除设备*/
@@ -75,6 +81,13 @@ public class DeviceService {
     @Transactional(rollbackFor = Exception.class)
     public void update(DeviceDto deviceDto){
         Optional.ofNullable(deviceDto).map(DeviceDto::getId).orElseThrow(()->new ParameterException("设备id为空"));
+
+        List<Device> deviceList=deviceMapperImp.list(Wrappers.<Device>lambdaQuery().eq(Device::getDeviceName,deviceDto.getDeviceName()));
+
+        boolean otherDevice=deviceList.stream().anyMatch(d->!(d.getId().equals(deviceDto.getId())));
+        if(otherDevice){
+            throw new ParameterException("设备名称重复");
+        }
         Device device=new Device();
         BeanUtils.copyProperties(deviceDto,device);
         deviceMapperImp.updateById(device);

@@ -7,6 +7,7 @@ import group.yzhs.alarm.constant.SessionContextEnum;
 import group.yzhs.alarm.listener.SessionListener;
 import group.yzhs.alarm.mapper.impl.AlarmHistoryMapperImp;
 import group.yzhs.alarm.mapper.impl.PointMapperImp;
+import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.AlarmMessage;
 import group.yzhs.alarm.model.entity.AlarmHistory;
 import group.yzhs.alarm.model.rule.BaseRule;
@@ -41,12 +42,15 @@ public class LimitHighHandler extends BaseLimitHander {
 
     private AlarmHistoryMapperImp alarmHistoryMapperImp;
 
-    public LimitHighHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp);
+    private SystemConfigMapperImp systemConfigMapperImp;
+
+    public LimitHighHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp,SystemConfigMapperImp systemConfigMapperImp) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
+        this. systemConfigMapperImp= systemConfigMapperImp;
     }
 
     @Override
@@ -61,9 +65,9 @@ public class LimitHighHandler extends BaseLimitHander {
     }
 
     @Override
-    public void handle(BaseRule rule) {
+    public void handle(BaseRule rule,boolean isSwitch) {
         LimitRule limitRule = (LimitRule) rule;
-        if (judge(rule)) {
+        if (isSwitch&&judge(rule)) {
             alarmHandle(limitRule);
         } else {
             noAlarmHandle(limitRule);
@@ -77,6 +81,6 @@ public class LimitHighHandler extends BaseLimitHander {
 
     @Override
     public void noAlarmHandle(LimitRule limitRule) {
-defaultNoAlarmHandle(limitRule);
+        defaultNoAlarmHandle(limitRule);
     }
 }

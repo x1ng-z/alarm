@@ -5,6 +5,7 @@ import group.yzhs.alarm.constant.TrigerModelEnum;
 import group.yzhs.alarm.listener.SessionListener;
 import group.yzhs.alarm.mapper.impl.AlarmHistoryMapperImp;
 import group.yzhs.alarm.mapper.impl.PointMapperImp;
+import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.rule.BaseRule;
 import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import lombok.extern.slf4j.Slf4j;
@@ -26,15 +27,19 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
 
     private AlarmHistoryMapperImp alarmHistoryMapperImp;
 
+    private SystemConfigMapperImp systemConfigMapperImp;
+
     public RiseTrigerHandler(SessionListener sessionListener,
                              WXPushConfig wxPushConfig,
                              PointMapperImp pointMapperImp,
-                             AlarmHistoryMapperImp alarmHistoryMapperImp) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp);
+                             AlarmHistoryMapperImp alarmHistoryMapperImp,
+                             SystemConfigMapperImp systemConfigMapperImp) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
+        this.systemConfigMapperImp=systemConfigMapperImp;
     }
 
     @Override
@@ -49,10 +54,10 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
     }
 
     @Override
-    public void handle(BaseRule rule) {
+    public void handle(BaseRule rule,boolean isSwitch) {
         TriggerRule triggerRule = (TriggerRule) rule;
         //上升沿
-        if (judge(triggerRule)) {
+        if (isSwitch&&judge(triggerRule)) {
             alarmHandle(triggerRule);
         } else {
             noAlarmHandle(triggerRule);

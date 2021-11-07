@@ -6,11 +6,8 @@ import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.CellData;
-import com.alibaba.excel.metadata.CellExtra;
 import com.alibaba.excel.metadata.GlobalConfiguration;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
-import com.alibaba.excel.read.listener.ReadListener;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -33,8 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -97,6 +92,11 @@ public class SwitchRuleService {
             db_res.forEach(d->{
                 SwitchRuleDto switchRuleDto=new SwitchRuleDto();
                 BeanUtils.copyProperties(d,switchRuleDto);
+                Point point=pointMapperImp.getById(d.getPointId());
+                if(ObjectUtils.isNotEmpty(point)){
+                    switchRuleDto.setPointName(point.getName());
+                }
+
                 res.add(switchRuleDto);
             });
         }

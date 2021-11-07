@@ -9,6 +9,6 @@ import group.yzhs.alarm.model.rule.BaseRule;
  */
 public interface SubHandler {
     String getCode();
-    void handle(BaseRule rule);
+    void handle(BaseRule rule,boolean isSwitch);
     boolean judge(BaseRule rule);
 }

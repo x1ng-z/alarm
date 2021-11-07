@@ -40,6 +40,7 @@ public class AlarmMessage {
     @JSONField(serialize = false)
     private String alarmId;//用于识别同一点位名称的不同类型报警类型
 
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     //历史报警id
     private Long alarmHistoryId;
 

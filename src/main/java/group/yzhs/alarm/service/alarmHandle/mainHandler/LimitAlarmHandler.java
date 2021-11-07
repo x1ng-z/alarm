@@ -12,6 +12,7 @@ import group.yzhs.alarm.model.rule.limit.LimitRule;
 import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import group.yzhs.alarm.service.alarmHandle.Handler;
 import group.yzhs.alarm.service.alarmHandle.SubHandler;
+import group.yzhs.alarm.service.alarmHandle.subHandler.BaseLimitHander;
 import group.yzhs.alarm.utils.WXPushTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class LimitAlarmHandler implements Handler {
     private WXPushConfig wxPushConfig;
 
     @Autowired
-    private List<SubHandler> subHandlerList;
+    private List<BaseLimitHander> subHandlerList;
 
     private Map<String, SubHandler> handlerPool = new HashMap<>();
 
@@ -52,7 +53,7 @@ public class LimitAlarmHandler implements Handler {
     }
 
     @Override
-    public void handle(BaseRule rule) {
+    public void handle(BaseRule rule,boolean isSwitch) {
         synchronized (rule){
             LimitRule limitRule = (LimitRule) rule;
             //推送内容替换为模板内容
@@ -66,7 +67,7 @@ public class LimitAlarmHandler implements Handler {
 
             SubHandler subHandler=getHandlerPool().get(limitRule.getAlarmSubMode());
             if(!ObjectUtils.isEmpty(subHandler)){
-                subHandler.handle(limitRule);
+                subHandler.handle(limitRule,isSwitch);
             }
         }
 

@@ -99,6 +99,7 @@ public class AlarmRuleService {
     }
 
 
+
     @Transactional(rollbackFor = Exception.class)
     public void updateAlarmRuleAndSwitchMapmping(AlarmRule alarmRule,String[] swicthNames,String errorPrefix){
         if(0!=swicthNames.length){
@@ -219,6 +220,19 @@ public class AlarmRuleService {
 
     private  AlarmRule checkParam(AlarmRuleDto alarmRuleDto){
         AlarmRule alarmRule=new AlarmRule();
+        //id 校验
+        if(ObjectUtils.isNotEmpty(alarmRuleDto.getId())){
+            List<AlarmRule> existAlarmRuleList=alarmRuleMapperImp.list(Wrappers.<AlarmRule>lambdaQuery().eq(AlarmRule::getId,alarmRuleDto.getId()));
+            if(existAlarmRuleList.size()!=1){
+                throw new ParameterException("给定的报警规则id无法找到或存在多条条报警规则");
+            }
+            alarmRule.setId(alarmRuleDto.getId());
+
+        }
+
+
+
+
 
         /*判断报警模式是否在规定的编码范围内，并且设置待插入的报警规则的模式*/
         Boolean isValidAlarmMod=Arrays.stream(AlarmModelEnum.values()).anyMatch(m-> {
@@ -228,6 +242,7 @@ public class AlarmRuleService {
             }
             return false;
         });
+
 
         Boolean isValidLiAlarmMod=Arrays.stream(LimiteModelEnum.values()).anyMatch(lm->{
             if(lm.getCode().equals(alarmRuleDto.getAlarmSubMode())){
@@ -240,7 +255,7 @@ public class AlarmRuleService {
 
         Boolean isValidTmAlarmMod=Arrays.stream(TrigerModelEnum.values()).anyMatch(tm->{
             if(tm.getCode().equals(alarmRuleDto.getAlarmSubMode())){
-                alarmRule.setAlarmGroup(producttypeEnum.get(tm.getCode()));
+                alarmRule.setAlarmSubMode(tm.getCode());
                 return true;
             }
             return false;
@@ -255,7 +270,7 @@ public class AlarmRuleService {
 
         /*报警组的校验*/
         Boolean groupCheck=Arrays.stream(ProductTypeEnum.values()).anyMatch(pt->{
-            if(pt.getCode().equals(alarmRuleDto.getAlarmGroup())){
+            if(pt.getCode().equals(alarmRuleDto.getAlarmGroup().getCode())){
                 alarmRule.setAlarmGroup(producttypeEnum.get(pt.getCode()));
                 return true;
             }
@@ -265,6 +280,7 @@ public class AlarmRuleService {
         if(!groupCheck){
             throw new ParameterException("报警组编码不匹配");
         }
+        alarmRule.setIsWxPush(alarmRuleDto.getIsWxPush());
         alarmRule.setIsAudio(alarmRuleDto.getIsAudio());
         alarmRule.setLimiteValue(alarmRuleDto.getLimiteValue());
         alarmRule.setPointId(alarmRuleDto.getPointId());
@@ -328,6 +344,9 @@ public class AlarmRuleService {
                 alarmRuleExcelDto.setAlarmGroup(alarmGroup.getDecs()+"="+alarmGroup.getCode());
 
                 Point point=pointMapperImp.getById(s.getPointId());
+                if(ObjectUtils.isEmpty(point)){
+                    throw new ParameterException(String.format("未查询到规则id=%d对应的点位信息",s.getId()));
+                }
                 alarmRuleExcelDto.setPoint(point.getNodeCode()+"="+point.getTag());
                 StringJoiner alarmSwitchNameList=new StringJoiner("=");
                 List<AlarmRuleSwitchMap> alarmRuleSwitchMapList=alarmRuleSwitchMapMapperImp.list(Wrappers.<AlarmRuleSwitchMap>lambdaQuery().eq(AlarmRuleSwitchMap::getRefAlarmRuleId,s.getId()));
@@ -376,18 +395,23 @@ public class AlarmRuleService {
 //            log.info("rowIndex={}",rowIndex);
             AlarmRule alarmRule=new AlarmRule();
             //id
-            Valider.valid(false,data.getId().toString(), new Success<AlarmRule>(){
-                @Override
-                public boolean exceute(String[] value, AlarmRule object,String errormessage) {
-                    if(StringUtils.isNotBlank(value[0])){
-                        AlarmRule existAlarmRule=alarmRuleMapperImp.getById(Long.parseLong(value[0]));
-                        if(ObjectUtils.isNotEmpty(existAlarmRule)){
-                            object.setId(Long.parseLong(value[0].trim())); return true;
+            if(ObjectUtils.isNotEmpty(data.getId())){
+                Valider.valid(false,data.getId().toString(), new Success<AlarmRule>(){
+                    @Override
+                    public boolean exceute(String[] value, AlarmRule object,String errormessage) {
+                        if(StringUtils.isNotBlank(value[0])){
+                            AlarmRule existAlarmRule=alarmRuleMapperImp.getById(Long.parseLong(value[0]));
+                            if(ObjectUtils.isNotEmpty(existAlarmRule)){
+                                object.setId(Long.parseLong(value[0].trim())); return true;
+                            }else{
+                                throw new ParameterException(String.format("%s 规则不存在",errormessage));
+                            }
                         }
+                        throw new ParameterException(String.format("%s 为空",errormessage));
                     }
-                    throw new ParameterException(String.format("%s 为空",errormessage));
-                }
-            },alarmRule,String.format("第%d行id",rowIndex));
+                },alarmRule,String.format("第%d行id",rowIndex));
+
+            }
             //报警模式
             Valider.valid(true,data.getAlarmMode(), new Success<AlarmRule>(){
                 @Override
@@ -505,12 +529,19 @@ public class AlarmRuleService {
             Valider.valid(false,data.getAlarmSwitch(), new Success<AlarmRule>(){
                 @Override
                 public boolean exceute(String[] value, AlarmRule object,String errormessage) {
-                    String[] switchNames=value[0].split("=");
+                    String[] switchNames;
+                    if(StringUtils.isNotBlank(value[0])){
+                        switchNames=value[0].split("=");
+                    }else{
+                        return true;
+                    }
                     //最后的数据更新
                     alarmRuleService.updateAlarmRuleAndSwitchMapmping(object,switchNames,errormessage);
                     return true;
                 }
             },alarmRule,String.format("第%d行报警开关",rowIndex));
+
+            alarmRuleMapperImp.saveOrUpdate(alarmRule);
         }
 
 

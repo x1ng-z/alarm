@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 public class AlarmHistory extends BaseEntity{
     private String alarmContext;
-    private Date alarmTime;
+    private Date createTime;
     private AlarmPushStatusEnum pushStatus;
     private String deviceNo;
     private Long refAlarmRuleId;

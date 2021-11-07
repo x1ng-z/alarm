@@ -16,9 +16,9 @@ import java.util.Map;
 @Getter
 public enum LimiteModelEnum {
 
-    LIMIT_HIGH("HI_LIM", "低限报警"),
+    LIMIT_HIGH("HI_LIM", "高限报警"),
 
-    LIMIT_LOW("LO_LIM", "高限报警");
+    LIMIT_LOW("LO_LIM", "低限报警");
 
 
     LimiteModelEnum(String code, String name) {

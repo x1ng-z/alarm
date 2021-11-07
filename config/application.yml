@@ -5,9 +5,9 @@ spring:
     active: prod
 
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    username: root
-    password:
+    url: jdbc:mysql://192.168.10.212:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    username: admin
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     type: com.alibaba.druid.pool.DruidDataSource
@@ -40,27 +40,25 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-request-size: 100MB
-      max-file-size: 100MB
+      max-request-size: 10MB
+      max-file-size: 10MB
 
 
 server:
   port: 8090
   servlet:
     session:
-      timeout: 60s
+      timeout: 180s
 
-rules:
-  filelocation: E:\\project\\2021_Project\\alarm\\config\\Production_Line.xml
-
-alarm-history-archive: true
-alarm-history-execute-period: 8748000000
-
+alarm:
+  alarmHistoryArchive: true
+  alarmHistoryExecutePeriod: 8748000000
+  alarmPush: http://192.168.0.115:8080/ProcessExtend/RiskInfoDCS
 
 collector:
   dataresurce: iot
   innerurl: http://127.0.0.1:8770
-  ioturl: http://127.0.0.1/iot
+  ioturl: http://192.168.137.222/iot
 wx:
   url: http://127.0.0.1:5555/SendMsgAction
   department: 江西鹰鹏DCS自动推送群

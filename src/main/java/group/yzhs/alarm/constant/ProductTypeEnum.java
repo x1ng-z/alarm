@@ -18,7 +18,8 @@ public enum ProductTypeEnum {
     PRODUCT_TYPE_SL("sl","生料",true),
     PRODUCT_TYPE_SC("sc","烧成",true),
     PRODUCT_TYPE_ZC("zc","制成",true),
-    PRODUCT_TYPE_KTJ("ktj","开停机",false);
+    PRODUCT_TYPE_KTJ("ktj","开停机",false),
+    PRODUCT_TYPE_YR("yr","余热",true);
 
     @EnumValue
 //    @JsonValue

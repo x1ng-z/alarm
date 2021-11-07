@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class AlarmRuleExcelDto {
+    @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private String id;
     private String  alarmMode    ;
     private String alarmSubMode ;

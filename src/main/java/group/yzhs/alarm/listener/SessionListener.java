@@ -29,7 +29,6 @@ public class SessionListener implements HttpSessionListener {
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {
-        log.debug("a new session has created.id={}",se.getSession().getId());
         //add alarm list and audio list， alarm-list：key=tag
         se.getSession().setAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode(),new ConcurrentHashMap<String, AlarmMessage>());
         //key=tag
@@ -37,12 +36,13 @@ public class SessionListener implements HttpSessionListener {
         //key=tag
         se.getSession().setAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOPUSHLASTTIME.getCode(), new ConcurrentHashMap<String, LocalDateTime>());
         httpSessionMap.put(se.getSession().getId(),se.getSession());
+        log.info("a new session has created.id={},size={}",se.getSession().getId(),httpSessionMap.size());
 
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
-        log.debug("a expired session has remove.id={}",se.getSession().getId());
+        log.info("a expired session has remove.id={}",se.getSession().getId());
         HttpSession httpSession=httpSessionMap.remove(se.getSession().getId());
         //help gc
         httpSession.removeAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
