@@ -17,6 +17,7 @@ import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.excel.write.style.column.AbstractColumnWidthStyleStrategy;
 import com.alibaba.excel.write.style.row.AbstractRowHeightStyleStrategy;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -32,6 +33,7 @@ import java.util.*;
  * @date 2021/10/19 14:56
  */
 @Slf4j
+@UtilityClass
 public class ExcelUtils {
     /**写excle数据设置**/
     //下来选项
@@ -291,7 +293,7 @@ public class ExcelUtils {
      * @param endCol 结束列
      * @return 设置好的sheet.
      */
-    public static HSSFSheet setHSSFValidation(HSSFSheet sheet,
+    public  HSSFSheet setHSSFValidation(HSSFSheet sheet,
                                               String[] textlist, int firstRow, int endRow, int firstCol,
                                               int endCol) {
         // 加载下拉列表内容
@@ -328,7 +330,7 @@ public class ExcelUtils {
      *            结束列
      * @return 设置好的sheet.
      */
-    public static HSSFSheet setHSSFPrompt(HSSFSheet sheet, String promptTitle,
+    public  HSSFSheet setHSSFPrompt(HSSFSheet sheet, String promptTitle,
                                           String promptContent, int firstRow, int endRow, int firstCol,
                                           int endCol) {
         // 构造constraint对象

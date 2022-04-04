@@ -104,9 +104,9 @@ public class PointService {
     @Transactional(rollbackFor = Exception.class)
     public void update(PointDto pointDto){
         Optional.ofNullable(pointDto).map(PointDto::getId).orElseThrow(()->new ParameterException("点位id为空"));
-
+        //（节点和位号）or 名称
         List<Point> existPoints=pointMapperImp.list(Wrappers.<Point>lambdaQuery().nested(i->i.eq(Point::getTag,pointDto.getTag()).eq(Point::getNodeCode,pointDto.getNodeCode())).or(i->i.eq(Point::getName,pointDto.getName())));
-        boolean isExist=existPoints.stream().anyMatch(p->!(p.getId().equals(pointDto)));
+        boolean isExist=existPoints.stream().anyMatch(p->!(p.getId().equals(pointDto.getId())));
         if(isExist){
             throw new ParameterException("位号名称或编码相同");
         }

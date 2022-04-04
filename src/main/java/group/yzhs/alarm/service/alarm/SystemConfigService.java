@@ -74,4 +74,19 @@ public class SystemConfigService {
         }
         return res;
     }
+
+    public List<SystemConfigDto> findPropertiesByGroupAndCode(String groupName,String code){
+        List<SystemConfig> db_res=systemConfigMapperImp.list(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode,code).eq(SystemConfig::getConfigGroup,groupName));
+        List<SystemConfigDto> res=new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(db_res)){
+            db_res.forEach(d->{
+                SystemConfigDto systemConfigDto=new SystemConfigDto();
+                BeanUtils.copyProperties(d,systemConfigDto);
+                res.add(systemConfigDto);
+            });
+        }
+        return res;
+    }
+
+
 }

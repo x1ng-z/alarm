@@ -2,6 +2,7 @@ package group.yzhs.alarm.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -31,9 +32,10 @@ import java.util.Map;
  * create by yjq on 2019-9-21
  */
 @Slf4j
+@UtilityClass
 public class WXPushTools {
 
-    public static   <T> T postForEntity(String url, Object myclass, Class<T> returnClass) {
+    public    <T> T postForEntity(String url, Object myclass, Class<T> returnClass) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpPost posturl = new HttpPost(url);
         RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(15 * 1000)
@@ -74,7 +76,7 @@ public class WXPushTools {
         return null;
     }
 
-    public static void sendwx(String url, String msg, String department) {
+    public  void sendwx(String url, String msg, String department) {
         Map<String, String> map = new HashMap<>();
         map.put("message", msg);
         map.put("department", department);
@@ -83,7 +85,7 @@ public class WXPushTools {
         log.debug("微信推送结果：" + result);
     }
 
-    public static String doget(String url, Map<String, String> map) {
+    public  String doget(String url, Map<String, String> map) {
         String result = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         // 创建参数队列
@@ -123,7 +125,7 @@ public class WXPushTools {
         return result;
     }
 
-    public static String dopost_file(String url, Map<String, String> map, String filepath) {
+    public  String dopost_file(String url, Map<String, String> map, String filepath) {
 //        if (true) {
 //            return "";
 //        }
@@ -166,7 +168,7 @@ public class WXPushTools {
         return result;
     }
 
-    public static String doPostjson(String url, Object myclass, Map<String, String> map) {
+    public  String doPostjson(String url, Object myclass, Map<String, String> map) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         if (null != map) {
             for (Map.Entry<String, String> entry : map.entrySet()) {

@@ -5,7 +5,7 @@ spring:
     active: prod
 
   datasource:
-    url: jdbc:mysql://192.168.10.212:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.99.213:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     username: admin
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver

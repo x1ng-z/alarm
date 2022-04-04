@@ -3,6 +3,8 @@ package group.yzhs.alarm.model.dto.device;
 import com.alibaba.fastjson.annotation.JSONField;
 import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 

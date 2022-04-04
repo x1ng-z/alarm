@@ -4,7 +4,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 import java.util.concurrent.*;
 
@@ -14,7 +18,7 @@ import java.util.concurrent.*;
  * @date 2020/10/8 11:28
  */
 @Configuration
-public class AppThreadconfig {
+public class AppThreadconfig implements SchedulingConfigurer, AsyncConfigurer {
 
     static {
         //设置stream paralle线程数量
@@ -40,6 +44,23 @@ public class AppThreadconfig {
         return pool;
     }
 
+
+
+    /**
+     * 定时任务
+     * */
+    @Bean(destroyMethod = "shutdown", name = "timerTaskScheduler")
+    public ThreadPoolTaskScheduler taskScheduler(){
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(100);
+        scheduler.setThreadNamePrefix("timer-task-");
+        scheduler.setAwaitTerminationSeconds(60);
+        scheduler.setWaitForTasksToCompleteOnShutdown(true);
+        scheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        return scheduler;
+    }
+
+
     @Bean("instanceLogExecutor")
     public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
@@ -51,4 +72,16 @@ public class AppThreadconfig {
         taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         return taskExecutor;
     }
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
+        ThreadPoolTaskScheduler taskScheduler = taskScheduler();
+        scheduledTaskRegistrar.setTaskScheduler(taskScheduler);
+    }
+
+    @Override
+    public Executor getAsyncExecutor() {
+        return taskExecutor();
+    }
+
 }

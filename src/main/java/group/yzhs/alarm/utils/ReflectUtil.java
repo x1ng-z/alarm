@@ -1,5 +1,6 @@
 package group.yzhs.alarm.utils;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,9 +13,10 @@ import java.util.List;
  * @version 1.0
  * @date 2021/10/17 21:29
  */
+@UtilityClass
 @Slf4j
 public class ReflectUtil {
-    public static Method[] getMethods(Class<?> clazz,String startName){
+    public  Method[] getMethods(Class<?> clazz,String startName){
         Method[] methods =clazz.getDeclaredMethods();
         List<Method> res=new ArrayList<>();
         for(int index=0;index<methods.length;index++){
@@ -28,7 +30,7 @@ public class ReflectUtil {
         return arrayRes;
     }
 
-    public static Object invoke(Object o,Method method,Object... parameters) {
+    public  Object invoke(Object o,Method method,Object... parameters) {
         Object res= null;
         try {
             res = method.invoke(o,parameters);
