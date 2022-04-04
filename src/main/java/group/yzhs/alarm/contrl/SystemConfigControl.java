@@ -58,9 +58,20 @@ public class SystemConfigControl {
         return RestHttpResponseEntity.success(judgementService.getErrormessage());
     }
 
+    /**
+     * 获取指定group名称和code的字典数据
+     * */
     @RequestMapping(value = "/getGroupSets")
     public RestHttpResponseEntity<List> getGroupSets(@RequestParam("groupName") String groupName, @RequestParam("code") String code) {
         return RestHttpResponseEntity.success(systemConfigService.findPropertiesByGroupAndCode(groupName, code));
+    }
+
+    /**
+     * 获取指定group的所有属性
+     * */
+    @RequestMapping(value = "/getGroupAllSets")
+    public RestHttpResponseEntity<List> getGroupSets(@RequestParam("groupName") String groupName) {
+        return RestHttpResponseEntity.success(systemConfigService.findPropertiesByGroupAndCode(groupName));
     }
 
 

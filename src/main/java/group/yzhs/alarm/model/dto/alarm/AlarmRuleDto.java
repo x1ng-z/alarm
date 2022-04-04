@@ -35,9 +35,9 @@ public class AlarmRuleDto {
     @JSONField(serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.LongToStringSerializer.class)
     private Long pointId;
     //'报警组：ktj，sl，sc，zc
-    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
+//    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
     @NotNull(message = "group 不能为空")
-    private  ProductTypeEnum alarmGroup;
+    private  String alarmGroup;
 //    @NotNull(message = "limiteValue 不能为空")
     private BigDecimal limiteValue;
     @NotNull(message = "alarmTemple 不能为空")

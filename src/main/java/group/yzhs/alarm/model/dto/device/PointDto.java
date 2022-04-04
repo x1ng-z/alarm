@@ -25,4 +25,6 @@ public class PointDto {
     private Long refDeviceId;
     @NotNull(message = "位号节点编码不能空")
     private String nodeCode;
+
+    private String deviceName;
 }

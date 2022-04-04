@@ -80,7 +80,7 @@ public abstract class BaseLimitHander implements SubHandler {
 
 
         //现在达到报警状态了
-        if (limitRule.getAlarmGroup().getDisplay()) {
+        if (/*limitRule.getAlarmGroup().getDisplay()*/true) {
             AlarmHistory finalAlarmHistory = newAlarmHistory;
             log.debug(Thread.currentThread() + " LIMIT  context:{}", limitRule.getPushWXContext());
             log.info("*****session size={}",sessionListener.getHttpSessionMap().size());
@@ -95,7 +95,7 @@ public abstract class BaseLimitHander implements SubHandler {
                             .context(limitRule.getPushAudioContext())
                             .date(new Date())
                             .level(0L)
-                            .product(limitRule.getAlarmGroup().getCode())
+                            .product(limitRule.getAlarmGroup())
                             .rate(0.0)
                             .value(limitRule.getValue())
                             .alarmId(getAlaramId(limitRule))
@@ -112,7 +112,7 @@ public abstract class BaseLimitHander implements SubHandler {
                                     .context(limitRule.getPushAudioContext())
                                     .date(new Date())
                                     .level(0L)
-                                    .product(limitRule.getAlarmGroup().getCode())
+                                    .product(limitRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(limitRule.getValue())
                                     .alarmId(getAlaramId(limitRule))
@@ -129,7 +129,7 @@ public abstract class BaseLimitHander implements SubHandler {
                                     .context(limitRule.getPushAudioContext())
                                     .date(new Date())
                                     .level(0L)
-                                    .product(limitRule.getAlarmGroup().getCode())
+                                    .product(limitRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(limitRule.getValue())
                                     .alarmId(getAlaramId(limitRule))
@@ -182,7 +182,7 @@ public abstract class BaseLimitHander implements SubHandler {
                                             .context(limitRule.getPushAudioContext())
                                             .date(new Date())
                                             .level(0L)
-                                            .product(limitRule.getAlarmGroup().getCode())
+                                            .product(limitRule.getAlarmGroup())
                                             .rate(0.0)
                                             .value(limitRule.getValue())
                                             .build();
@@ -221,7 +221,7 @@ public abstract class BaseLimitHander implements SubHandler {
                                     .context(limitRule.getPushAudioContext())
                                     .date(new Date())
                                     .level(0L)
-                                    .product(limitRule.getAlarmGroup().getCode())
+                                    .product(limitRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(limitRule.getValue())
                                     .build();
@@ -240,7 +240,7 @@ public abstract class BaseLimitHander implements SubHandler {
     public void defaultNoAlarmHandle(LimitRule limitRule) {
         //不报警，那么需要进行web报警画面消除
         //现在达到报警状态了
-        if (limitRule.getAlarmGroup().getDisplay()) {
+        if (/*limitRule.getAlarmGroup().getDisplay()*/true) {
             sessionListener.getHttpSessionMap().values().forEach(s -> {
                 Map<String, AlarmMessage> AlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
                 AlarmMessage alarmMessage=AlarmMap.get(limitRule.getIotNode()+"="+limitRule.getTag());

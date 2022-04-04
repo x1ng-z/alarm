@@ -14,6 +14,7 @@ import java.util.Map;
  * @date 2021/8/13 10:31
  */
 @Getter
+@Deprecated
 public enum ProductTypeEnum {
     PRODUCT_TYPE_SL("sl","生料",true),
     PRODUCT_TYPE_SC("sc","烧成",true),

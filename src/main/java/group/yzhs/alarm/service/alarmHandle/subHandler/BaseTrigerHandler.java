@@ -78,7 +78,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
             alarmHistoryMapperImp.save(newAlarmHistory);
         }
 
-        if (triggerRule.getAlarmGroup().getDisplay()) {
+        if (/*triggerRule.getAlarmGroup().getDisplay()*/true) {
             log.debug(" TRG context:{}", triggerRule.getPushWXContext());
             AlarmHistory finalAlarmHistory = newAlarmHistory;
             sessionListener.getHttpSessionMap().values().forEach(s -> {
@@ -91,7 +91,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
                             .context(triggerRule.getPushAudioContext())
                             .date(new Date())
                             .level(0L)
-                            .product(triggerRule.getAlarmGroup().getCode())
+                            .product(triggerRule.getAlarmGroup())
                             .rate(0.0)
                             .value(triggerRule.getValue())
                             .alarmId(getAlaramId(triggerRule))
@@ -109,7 +109,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
                                     .context(triggerRule.getPushAudioContext())
                                     .date(new Date())
                                     .level(0L)
-                                    .product(triggerRule.getAlarmGroup().getCode())
+                                    .product(triggerRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(triggerRule.getValue())
                                     .alarmId(getAlaramId(triggerRule))
@@ -126,7 +126,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
                                     .context(triggerRule.getPushAudioContext())
                                     .date(new Date())
                                     .level(0L)
-                                    .product(triggerRule.getAlarmGroup().getCode())
+                                    .product(triggerRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(triggerRule.getValue())
                                     .alarmId(getAlaramId(triggerRule))
@@ -174,7 +174,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
                                             .context(triggerRule.getPushAudioContext())
                                             .date(new Date())
                                             .level(0L)
-                                            .product(triggerRule.getAlarmGroup().getCode())
+                                            .product(triggerRule.getAlarmGroup())
                                             .rate(0.0)
                                             .value(triggerRule.getValue())
 //                                            .alarmHistoryId(newAlarmHistory.getId())
@@ -201,7 +201,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
         Point point =pointMapperImp.getById(triggerRule.getPointId());
         //不报警，那么需要进行web报警画面消除
         //现在达到报警状态了
-        if (triggerRule.getAlarmGroup().getDisplay()) {
+        if (/*triggerRule.getAlarmGroup().getDisplay()*/true) {
             sessionListener.getHttpSessionMap().values().forEach(s -> {
                 Map<String, AlarmMessage> AlarmMap = (Map<String, AlarmMessage>) s.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
                 AlarmMessage alarmMessage=AlarmMap.get(triggerRule.getIotNode()+"="+triggerRule.getTag());

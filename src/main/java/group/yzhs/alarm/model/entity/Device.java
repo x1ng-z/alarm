@@ -12,5 +12,5 @@ import lombok.Data;
 public class Device extends BaseEntity {
     private String deviceNo;
     private String deviceName;
-    private ProcessEnum process;
+    private String process;
 }

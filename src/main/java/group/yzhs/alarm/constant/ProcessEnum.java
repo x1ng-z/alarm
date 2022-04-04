@@ -14,10 +14,13 @@ import java.util.Map;
  * 工艺分类
  */
 @Getter
+@Deprecated
 public enum ProcessEnum {
     PROCESS_SL("sl","生料"),
     PROCESS_SC("sc","烧成"),
-    PROCESS_ZC("zc","制成")
+    PROCESS_ZC("zc","制成"),
+    //余热
+    PROCESS_YURE("yr","余热")
     ;
 
     @EnumValue

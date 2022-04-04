@@ -22,7 +22,7 @@ private Long id;
     @NotNull(message = "设备名称不能为空")
     private String deviceName;
 
-    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
+//    @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
     @NotNull(message = "设备分类不能为空")
-    private ProcessEnum process;
+    private String process;
 }
