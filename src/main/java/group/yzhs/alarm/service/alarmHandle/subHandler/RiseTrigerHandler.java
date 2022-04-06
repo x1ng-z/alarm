@@ -9,7 +9,10 @@ import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.rule.BaseRule;
 import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author zzx
@@ -33,8 +36,10 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
                              WXPushConfig wxPushConfig,
                              PointMapperImp pointMapperImp,
                              AlarmHistoryMapperImp alarmHistoryMapperImp,
-                             SystemConfigMapperImp systemConfigMapperImp) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp);
+                             SystemConfigMapperImp systemConfigMapperImp,
+                             @Qualifier("http-wx-push-thread")
+                                     ExecutorService executorService) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp,executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;

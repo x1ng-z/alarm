@@ -16,6 +16,8 @@ import group.yzhs.alarm.service.alarmHandle.SubHandler;
 import group.yzhs.alarm.utils.WXPushTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author zzx
@@ -44,8 +47,15 @@ public class LimitHighHandler extends BaseLimitHander {
 
     private SystemConfigMapperImp systemConfigMapperImp;
 
-    public LimitHighHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp,SystemConfigMapperImp systemConfigMapperImp) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp);
+
+    public LimitHighHandler(SessionListener sessionListener,
+                            WXPushConfig wxPushConfig,
+                            PointMapperImp pointMapperImp,
+                            AlarmHistoryMapperImp alarmHistoryMapperImp,
+                            SystemConfigMapperImp systemConfigMapperImp,
+                            @Qualifier("http-wx-push-thread")
+                            ExecutorService executorService) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp,executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;

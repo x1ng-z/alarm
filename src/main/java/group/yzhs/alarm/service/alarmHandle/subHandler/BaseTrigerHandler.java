@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -49,13 +50,20 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
     private AlarmHistoryMapperImp alarmHistoryMapperImp;
     private SystemConfigMapperImp systemConfigMapperImp;
+    private ExecutorService executorService;
 
-    public BaseTrigerHandler(SessionListener sessionListener, WXPushConfig wxPushConfig, PointMapperImp pointMapperImp, AlarmHistoryMapperImp alarmHistoryMapperImp,SystemConfigMapperImp systemConfigMapperImp) {
+    public BaseTrigerHandler(SessionListener sessionListener,
+                             WXPushConfig wxPushConfig,
+                             PointMapperImp pointMapperImp,
+                             AlarmHistoryMapperImp alarmHistoryMapperImp,
+                             SystemConfigMapperImp systemConfigMapperImp,
+                             ExecutorService executorService) {
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
         this.systemConfigMapperImp= systemConfigMapperImp;
+        this.executorService=executorService;
     }
 
     public abstract  void alarmHandle(BaseRule triggerRule);
@@ -158,7 +166,9 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
                 if (triggerRule.getIsWxPush()&&systemConfigMap.size()==3) {
                     if (ObjectUtils.isEmpty(triggerRule.getPushWXLastTime()) || triggerRule.getPushWXLastTime().plus(Long.parseLong(systemConfigMap.get(SysConfigEnum.SYS_CONFIG_pushIntervalSec.getCode()).getValue())/*wxPushConfig.getPushIntervalSec()*/, ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
-                        WXPushTools.sendwx(systemConfigMap.get(SysConfigEnum.SYS_CONFIG_url.getCode()).getValue()/*wxPushConfig.getUrl()*/, triggerRule.getPushWXContext(),systemConfigMap.get(SysConfigEnum.SYS_CONFIG_department.getCode()).getValue() /*wxPushConfig.getDepartment()*/);
+                        executorService.execute(()->{
+                            WXPushTools.sendwx(systemConfigMap.get(SysConfigEnum.SYS_CONFIG_url.getCode()).getValue()/*wxPushConfig.getUrl()*/, triggerRule.getPushWXContext(),systemConfigMap.get(SysConfigEnum.SYS_CONFIG_department.getCode()).getValue() /*wxPushConfig.getDepartment()*/);
+                        });
                         triggerRule.setPushWXLastTime(LocalDateTime.now());
                     }
                 }

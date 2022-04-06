@@ -15,6 +15,7 @@ import group.yzhs.alarm.service.alarmHandle.SubHandler;
 import group.yzhs.alarm.utils.WXPushTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author zzx
@@ -47,13 +49,15 @@ public class LimitLowHandler extends BaseLimitHander {
                            WXPushConfig wxPushConfig,
                            PointMapperImp pointMapperImp,
                            AlarmHistoryMapperImp alarmHistoryMapperImp,
-                           SystemConfigMapperImp systemConfigMapperImp) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp);
+                           SystemConfigMapperImp systemConfigMapperImp,
+                           @Qualifier("http-wx-push-thread")
+                           ExecutorService executorService) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp, executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
-        this. systemConfigMapperImp= systemConfigMapperImp;
+        this.systemConfigMapperImp = systemConfigMapperImp;
     }
 
     @Override
@@ -68,14 +72,15 @@ public class LimitLowHandler extends BaseLimitHander {
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
+    public void handle(BaseRule rule, boolean isSwitch) {
         LimitRule limitRule = (LimitRule) rule;
-        if (isSwitch&&judge(rule)) {
+        if (isSwitch && judge(rule)) {
             alarmHandle(limitRule);
         } else {
             noAlarmHandle(limitRule);
         }
     }
+
     @Override
     public void alarmHandle(LimitRule limitRule) {
         defaultAlarmHandle(limitRule);
