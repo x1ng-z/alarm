@@ -9,14 +9,14 @@ import lombok.Getter;
  */
 @Getter
 public enum SysConfigEnum {
-    SYS_CONFIG_ioturl("ioturl","IOTUrl"),
-    SYS_CONFIG_innerurl("innerurl","内部Url"),
-    SYS_CONFIG_dataresurce("dataresurce","数据来源"),
+    SYS_CONFIG_ioturl("iotUrl","IOTUrl"),
+    SYS_CONFIG_innerurl("innerUrl","内部Url"),
+    SYS_CONFIG_dataresurce("dataSource","数据来源"),
     SYS_CONFIG_continueAlarmSec("continueAlarmSec","持续报警时间"),
     SYS_CONFIG_pushIntervalSec("pushIntervalSec","推送间隔时间"),
-    SYS_CONFIG_department("department","推送群名"),
-    SYS_CONFIG_rate("rate","语音播报速度"),
-    SYS_CONFIG_url("url","微信推送Url"),
+    SYS_CONFIG_department("dePartment","推送群名"),
+    SYS_CONFIG_rate("audioRate","语音播报速度"),
+    SYS_CONFIG_url("wxpushUrl","微信推送Url"),
     SYS_CONFIG_companyCode("companyCode","公司编码"),
     SYS_CONFIG_companyName("companyName","公司名称")
     ;
