@@ -61,6 +61,7 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
     @Override
     public void handle(BaseRule rule,boolean isSwitch) {
         TriggerRule triggerRule = (TriggerRule) rule;
+
         //上升沿
         if (isSwitch&&judge(triggerRule)) {
             alarmHandle(triggerRule);

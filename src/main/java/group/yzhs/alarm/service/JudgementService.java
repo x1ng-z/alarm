@@ -14,6 +14,7 @@ import group.yzhs.alarm.model.dto.iot.IotReadNodeInfo;
 import group.yzhs.alarm.model.dto.iot.IotResponse;
 import group.yzhs.alarm.model.entity.*;
 import group.yzhs.alarm.model.rule.BaseRule;
+import group.yzhs.alarm.model.rule.trigger.TriggerRule;
 import group.yzhs.alarm.service.alarmHandle.Handler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -88,6 +90,7 @@ public class JudgementService {
 
 
     public void judge() {
+
         /*
         //查询点位
         * 1获取iot实时数据
@@ -95,7 +98,7 @@ public class JudgementService {
         * 3进行判断处理
         * */
         /*查询数据点*/
-        List<Point> pointList = pointMapperImp.list();
+        List<Point> pointList = pointMapperImp.list().stream().filter(point -> !StringUtils.isEmpty(point.getTag())).collect(Collectors.toList());
         IotDcsReadDto iotDcsReadDto = new IotDcsReadDto();
         iotDcsReadDto.setSample(1);
         List<IotReadNodeInfo> points = new ArrayList<>();
@@ -113,31 +116,41 @@ public class JudgementService {
         }
 
         iotDcsReadDto.setPoints(points);
-
-        SystemConfig iotConfig=systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SysConfigEnum.SYS_CONFIG_ioturl.getCode()));
+        //iot 数据获取
+        SystemConfig iotConfig = systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SysConfigEnum.SYS_CONFIG_ioturl.getCode()));
         ResponseEntity<IotResponse> iotResponse = restTemplate.postForEntity(iotConfig.getValue() + config.getIotread(), iotDcsReadDto, IotResponse.class);
         if (iotResponse.getStatusCode().equals(HttpStatus.OK)) {
             IotResponse iotResponseBody = iotResponse.getBody();
             if (iotResponseBody.getStatus().equals(HttpStatus.OK.value())) {
                 if (!CollectionUtils.isEmpty(iotResponseBody.getData())) {
                     //key=<nodecode=tag>
-                    Map<String, Double> lastDataFromIot = iotResponseBody.getData().stream().parallel().collect(Collectors.toMap(p -> p.getNode() + "=" + p.getMeasurePoint(), p -> p.getData().get(0).getValue(), (o, n) -> n));
+                    Map<String, Double> lasterDataFromIot = iotResponseBody.getData().stream().parallel().collect(Collectors.toMap(p -> p.getNode() + "=" + p.getMeasurePoint(), p -> p.getData().get(0).getValue(), (o, n) -> n));
                     List<AlarmRule> ruleslist = alarmRuleMapperImp.list();
                     //计算哪些报警规则已经移除，不需报警了
                     List<Long> distinctRules = new ArrayList<>();
                     distinctRules.addAll(ruleCaches.keySet());
                     distinctRules.removeAll(ruleslist.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList()));
+                    //移除掉数据库删除的报警
                     distinctRules.forEach(d -> ruleCaches.remove(d));
-                    //更新会添加报警规则设置
-                    ruleslist.stream().parallel().forEach(r -> {
+                    //添加新的报警规则设置
+                    List<Long> needRemoveRuleCache = new ArrayList<>();
+                    ruleslist.parallelStream().forEach(r -> {
+                        //新的报警规则
                         if (!ruleCaches.containsKey(r.getId())) {
                             ruleCaches.put(r.getId(), RuleCacheFacyory.create(r));
+                            log.debug("add id={},temple={}", r.getId(), r.getAlarmTemple());
                             //log.debug("insert a new rule");
                         } else {
+
                             BaseRule baseRule = ruleCaches.get(r.getId());
-                            //log.debug("update a rule");
-                            //update set报警设置
-                            BeanUtils.copyProperties(r, baseRule);
+                            //原先的报警设置的类型和当前数据库的是否匹配
+                            if(baseRule.getAlarmMode().equals(r.getAlarmMode()) && baseRule.getAlarmSubMode().equals(r.getAlarmSubMode())){
+                                //更新设置
+                                BeanUtils.copyProperties(r, baseRule);
+                            }else{
+                                //重新创建放入
+                                ruleCaches.put(r.getId(),RuleCacheFacyory.create(r));
+                            }
                         }
                         BaseRule baseRule = ruleCaches.get(r.getId());
                         //更新关联的点位信息
@@ -147,13 +160,16 @@ public class JudgementService {
                             baseRule.setTag(point.getTag());
                         } else {
                             /**如果点位都不存在的，那么直接移除规则*/
-                            ruleCaches.remove(r.getId());
+                            log.debug("remove id={},temple={}", r.getId(), r.getAlarmTemple());
+                            needRemoveRuleCache.add(r.getId());
                         }
 
                     });
+                    //remove its
+                    needRemoveRuleCache.forEach(id -> ruleCaches.remove(id));
 
                     StringBuilder tempError = new StringBuilder();
-                    ruleCaches.values().stream()/*.filter(r->r.getTag().equals("AI5721P02")).parallel()*/.forEach(rule -> {
+                    ruleCaches.values()/*.stream().filter(r->r.getTag().equals("AI5721P02")).parallel()*/.forEach(rule -> {
                         /*检查是否需要报警*/
                         //开关规则查询
                         boolean switchClose = true;
@@ -178,7 +194,7 @@ public class JudgementService {
                                         tempError.append(String.format("开关%s规则位号查找不到id=%d\n", aSwitch.getName(), sr.getPointId()));
                                         return true;
                                     } else {
-                                        Double lastValue = lastDataFromIot.get(point.getNodeCode() + "=" + point.getTag());
+                                        Double lastValue = lasterDataFromIot.get(point.getNodeCode() + "=" + point.getTag());
 
                                         if (ObjectUtils.isNotEmpty(lastValue)) {
                                             switch (sr.getRuleCode()) {
@@ -237,16 +253,19 @@ public class JudgementService {
                             }
                         }
 
-                            //开关已经闭合，那么现在可以进行数据判断了
-                            Point point = pointMapperImp.getById(rule.getPointId());
-                            if (ObjectUtils.isNotEmpty(point)) {
-                                Double lastValue = lastDataFromIot.get(point.getNodeCode() + "=" + point.getTag());
-                                if (ObjectUtils.isNotEmpty(lastValue)) {
-                                    rule.setValue(lastValue);
-                                    getHandlerPool().get(rule.getAlarmMode()).handle(rule,switchClose);
+                        //开关已经闭合，那么现在可以进行数据判断了
+                        Point point = pointMapperImp.getById(rule.getPointId());
+                        if (ObjectUtils.isNotEmpty(point)) {
+                            Double latestValue = lasterDataFromIot.get(point.getNodeCode() + "=" + point.getTag());
+                            if (ObjectUtils.isNotEmpty(latestValue)) {
+                                rule.setValue(latestValue);
+                                if (getHandlerPool().containsKey(rule.getAlarmMode())) {
+                                    getHandlerPool().get(rule.getAlarmMode()).handle(rule, switchClose);
                                 }
 
                             }
+
+                        }
 
                     });
                     errormessage = tempError.toString();

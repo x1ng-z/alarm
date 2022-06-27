@@ -73,7 +73,6 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
     public void defaultAlarmHandle(BaseRule triggerRule) {
         //现在达到报警状态了
-
         AlarmHistory newAlarmHistory=null;
         //是否需要保存/查询
         if(!triggerRule.getIsAlarm().get()){
@@ -208,7 +207,7 @@ public abstract class BaseTrigerHandler implements SubHandler {
 
     public void defaultNoAlarmHandle(BaseRule triggerRule) {
         //点位信息查询
-        Point point =pointMapperImp.getById(triggerRule.getPointId());
+        //Point point =pointMapperImp.getById(triggerRule.getPointId());
         //不报警，那么需要进行web报警画面消除
         //现在达到报警状态了
         if (/*triggerRule.getAlarmGroup().getDisplay()*/true) {
