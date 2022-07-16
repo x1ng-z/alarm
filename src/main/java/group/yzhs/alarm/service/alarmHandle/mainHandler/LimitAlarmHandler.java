@@ -53,8 +53,11 @@ public class LimitAlarmHandler implements Handler {
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
-        synchronized (rule){
+    public void handle(BaseRule rule) {
+        synchronized (rule) {
+            if (!(rule instanceof LimitRule)) {
+                return;
+            }
             LimitRule limitRule = (LimitRule) rule;
             //推送内容替换为模板内容
             limitRule.setPushWXContext(limitRule.getAlarmTemple());
@@ -65,9 +68,9 @@ public class LimitAlarmHandler implements Handler {
                 rp.removePlaceholderContext(limitRule);
             });
 
-            SubHandler subHandler=getHandlerPool().get(limitRule.getAlarmSubMode());
-            if(!ObjectUtils.isEmpty(subHandler)){
-                subHandler.handle(limitRule,isSwitch);
+            SubHandler subHandler = getHandlerPool().get(limitRule.getAlarmSubMode());
+            if (!ObjectUtils.isEmpty(subHandler)) {
+                subHandler.handle(limitRule);
             }
         }
 

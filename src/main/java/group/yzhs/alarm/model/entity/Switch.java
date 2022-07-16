@@ -1,5 +1,6 @@
 package group.yzhs.alarm.model.entity;
 
+import group.yzhs.alarm.constant.SwitchLogic;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,4 +13,5 @@ import java.math.BigDecimal;
 @Data
 public class Switch extends BaseEntity {
     private String name;
+    private SwitchLogic switchLogic;
 }

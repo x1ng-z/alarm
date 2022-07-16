@@ -27,7 +27,7 @@ public class DeviceControl {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public RestHttpResponseEntity<Void> add(@Valid @RequestBody DeviceDto deviceDto) {
-        System.out.println(JSON.toJSONString(deviceDto));
+        //System.out.println(JSON.toJSONString(deviceDto));
         deviceService.add(deviceDto);
         return RestHttpResponseEntity.success();
     }

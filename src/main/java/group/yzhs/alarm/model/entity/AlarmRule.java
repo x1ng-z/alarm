@@ -22,4 +22,5 @@ public class AlarmRule extends BaseEntity{
     private BigDecimal limiteValue;
     private String alarmTemple;
     private Boolean isWxPush ;
+    private String alarmInterval;
 }

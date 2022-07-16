@@ -44,17 +44,18 @@ public class TrigerAlarmHandler implements Handler {
     private Map<String, SubHandler> handlerPool = new HashMap<>();
 
 
-
-
     @Override
     public String getCode() {
         return AlarmModelEnum.ALARMMODEL_TRIG.getCode();
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
+    public void handle(BaseRule rule) {
 
         synchronized (rule) {
+            if (!(rule instanceof TriggerRule)) {
+                return;
+            }
             TriggerRule triggerRule = (TriggerRule) rule;
 
             //推送内容替换为模板内容
@@ -70,13 +71,12 @@ public class TrigerAlarmHandler implements Handler {
                 triggerRule.setLastvalue(triggerRule.getValue());
             }
 
-            SubHandler subHandler=getHandlerPool().get(triggerRule.getAlarmSubMode());
-            if(!ObjectUtils.isEmpty(subHandler)){
-                subHandler.handle(triggerRule,isSwitch);
+            SubHandler subHandler = getHandlerPool().get(triggerRule.getAlarmSubMode());
+            if (!ObjectUtils.isEmpty(subHandler)) {
+                subHandler.handle(triggerRule);
             }
             //更新上一次的值
             triggerRule.setLastvalue(triggerRule.getValue());
-
         }
 
 

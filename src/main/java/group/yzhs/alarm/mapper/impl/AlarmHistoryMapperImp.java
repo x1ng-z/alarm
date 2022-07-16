@@ -35,7 +35,7 @@ public class AlarmHistoryMapperImp extends ServiceImpl<AlarmHistoryMapper, Alarm
          if(ObjectUtils.isNotEmpty(date)){
              AlarmHistory res=alarmHistoryMapper.selectOne(Wrappers.<AlarmHistory>lambdaQuery()
                      .eq(AlarmHistory::getCreateTime,date)
-                     .eq(AlarmHistory::getRefAlarmRuleId,alarmRuleId));
+                     .eq(AlarmHistory::getRefAlarmRuleId,alarmRuleId).last(" LIMIT 1"));
              return res;
          }
          return null;

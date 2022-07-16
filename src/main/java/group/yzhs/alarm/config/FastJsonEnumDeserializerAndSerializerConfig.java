@@ -25,7 +25,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -67,8 +70,9 @@ public class FastJsonEnumDeserializerAndSerializerConfig {
                 String jsoncode=null;
                 try {
                     enumcode= method.invoke(item).toString();//获取指定的枚举类型需要反序列化匹配的值
-                    jsoncode=lexer.stringVal();//这里由于传输过来的json，反序列化中对应字段是一个枚举，且json中的字段是一个string
-                    Integer integer=lexer.intValue();
+                    try{jsoncode=lexer.stringVal();}catch(Exception e){jsoncode=null;}//这里由于传输过来的json，反序列化中对应字段是一个枚举，且json中的字段是一个string
+                    Integer integer=null;
+                    try{integer=lexer.intValue();}catch (Exception e){}
                     if (Objects.equals(enumcode, lexer.stringVal()) || Objects.equals(Integer.valueOf(enumcode), lexer.intValue())) {
                         return (T)item;
                     }

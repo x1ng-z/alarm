@@ -39,12 +39,12 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
                              SystemConfigMapperImp systemConfigMapperImp,
                              @Qualifier("http-wx-push-thread")
                                      ExecutorService executorService) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp,executorService);
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp, executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
-        this.systemConfigMapperImp=systemConfigMapperImp;
+        this.systemConfigMapperImp = systemConfigMapperImp;
     }
 
     @Override
@@ -59,11 +59,13 @@ public class RiseTrigerHandler extends BaseTrigerHandler {
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
+    public void handle(BaseRule rule) {
+        if (!(rule instanceof TriggerRule)) {
+            return;
+        }
         TriggerRule triggerRule = (TriggerRule) rule;
-
         //上升沿
-        if (isSwitch&&judge(triggerRule)) {
+        if (judge(triggerRule)) {
             alarmHandle(triggerRule);
         } else {
             noAlarmHandle(triggerRule);

@@ -39,13 +39,13 @@ public class FallTrigerHandler extends BaseTrigerHandler {
                              SystemConfigMapperImp systemConfigMapperImp,
                              @Qualifier("http-wx-push-thread")
                                      ExecutorService executorService
-                             ) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp,systemConfigMapperImp,executorService);
+    ) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp, executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
-        this. systemConfigMapperImp= systemConfigMapperImp;
+        this.systemConfigMapperImp = systemConfigMapperImp;
     }
 
     @Override
@@ -70,11 +70,14 @@ public class FallTrigerHandler extends BaseTrigerHandler {
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
+    public void handle(BaseRule rule) {
+        if (!(rule instanceof TriggerRule)) {
+            return;
+        }
         TriggerRule triggerRule = (TriggerRule) rule;
-        if(isSwitch&&judge(triggerRule)){
+        if (judge(triggerRule)) {
             alarmHandle(triggerRule);
-        }else {
+        } else {
             noAlarmHandle(triggerRule);
         }
     }

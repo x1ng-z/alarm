@@ -7,6 +7,7 @@ import group.yzhs.alarm.config.CollectorConfig;
 import group.yzhs.alarm.config.VersionInfo;
 import group.yzhs.alarm.constant.SessionContextEnum;
 import group.yzhs.alarm.constant.SysConfigEnum;
+import group.yzhs.alarm.listener.SessionListener;
 import group.yzhs.alarm.mapper.impl.SystemConfigMapperImp;
 import group.yzhs.alarm.model.AlarmMessage;
 import group.yzhs.alarm.model.entity.SystemConfig;
@@ -58,24 +59,27 @@ public class ALarmInfoContrl {
 
     @Autowired
     private SystemConfigMapperImp systemConfigMapperImp;
-    /**
-     *报警基础设置
-     * */
-    @RequestMapping("/baseSet")
-    public AlarmSetDto getBaseSet(HttpSession session){
+    @Autowired
+    private SessionListener sessionListener;
 
-        AlarmSetDto alarmSetDto=new AlarmSetDto();
+    /**
+     * 报警基础设置
+     */
+    @RequestMapping("/baseSet")
+    public AlarmSetDto getBaseSet(HttpSession session) {
+
+        AlarmSetDto alarmSetDto = new AlarmSetDto();
         alarmSetDto.setStatus(200);
         alarmSetDto.setMessage("报警基础配置信息");
-        AlarmSetInfo alarmSetInfo=new AlarmSetInfo();
+        AlarmSetInfo alarmSetInfo = new AlarmSetInfo();
 
-        SystemConfig  audioConfigValue=systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode,SYS_CONFIG_rate.getCode()));
-        if(!ObjectUtils.isEmpty(audioConfigValue)){
+        SystemConfig audioConfigValue = systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SYS_CONFIG_rate.getCode()));
+        if (!ObjectUtils.isEmpty(audioConfigValue)) {
             alarmSetInfo.setAudioRate(Float.parseFloat(audioConfigValue.getValue()));
-        }else{
+        } else {
             alarmSetInfo.setAudioRate(audioConfig.getRate());
         }
-        SystemConfig  companyNameConfigValue=systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SysConfigEnum.SYS_CONFIG_companyName.getCode()));
+        SystemConfig companyNameConfigValue = systemConfigMapperImp.getOne(Wrappers.<SystemConfig>lambdaQuery().eq(SystemConfig::getCode, SysConfigEnum.SYS_CONFIG_companyName.getCode()));
         alarmSetInfo.setCompany(companyNameConfigValue.getValue());
         alarmSetInfo.setVersion(versionInfo.getVersion());
         alarmSetDto.setData(alarmSetInfo);
@@ -83,71 +87,58 @@ public class ALarmInfoContrl {
     }
 
 
-
-
     /**
      * 获取报警列表
-     * **/
-    @RequestMapping(value = "alarmList",method = RequestMethod.GET)
+     **/
+    @RequestMapping(value = "alarmList", method = RequestMethod.GET)
     public AlarmDto getAlarmInfo(HttpSession session) {
-
-        Object alarmList = session.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
-
-        if ((!ObjectUtils.isEmpty(alarmList)) && (!CollectionUtils.isEmpty((Map) alarmList))) {
-            Map<String, AlarmMessage> alarmMessageMap=(Map<String, AlarmMessage>) alarmList;
-            AlarmDto alarmDto=AlarmDto.builder()
-                    .data(alarmMessageMap.values())
+        Map<String, AlarmMessage> alarmList = SessionListener.getAlarmList(session);
+        if (!CollectionUtils.isEmpty(alarmList)) {
+            return AlarmDto.builder()
+                    .data(alarmList.values())
                     .message("报警列表回去成功")
                     .status(200)
-                    .size(alarmMessageMap.values().size())
+                    .size(alarmList.values().size())
                     .build();
-            return alarmDto;
-        }else{
-            AlarmDto alarmDto=AlarmDto.builder()
+        } else {
+            return AlarmDto.builder()
                     .data(new ArrayList<>())
                     .message("无报警消息")
                     .status(200)
                     .size(0)
                     .build();
-            return alarmDto;
         }
     }
 
     /**
      * 获取语音报警消息
-     * */
-    @RequestMapping(value = "audioAlarmList",method = RequestMethod.GET)
+     */
+    @RequestMapping(value = "audioAlarmList", method = RequestMethod.GET)
     public AlarmDto getAudioAlarmList(HttpSession session) {
+        Map<String, AlarmMessage> audioList = SessionListener.getAudioList(session);
+        if (!CollectionUtils.isEmpty(audioList)) {
 
-        Object audioList = session.getAttribute(SessionContextEnum.SESSIONCONTEXT_AUDIOLIST.getCode());
-        if ((!ObjectUtils.isEmpty(audioList)) && (!CollectionUtils.isEmpty((Map) audioList))) {
+            log.info("语音报警消息获取成功 size={}", audioList.size());
+            List<AlarmMessage> audioContextList = new ArrayList<>();
+            audioList.forEach((k, v) -> {
+                v.setContext(v.getContext().replace("-", "负"));
+                audioContextList.add(v);
+            });
+            audioList.clear();
+            return AlarmDto.builder()
+                    .data(audioContextList)
+                    .message("语音报警消息获取成功")
+                    .status(200)
+                    .size(audioContextList.size())
+                    .build();
 
-            synchronized (audioList){
-                Map<String, AlarmMessage> alarmMessageMap=(Map<String, AlarmMessage>) audioList;
-                log.info("语音报警消息获取成功 size={}",alarmMessageMap.size());
-                List<AlarmMessage> audioContextList=new ArrayList<>();
-                alarmMessageMap.forEach((k,v)->{
-                    v.setContext(v.getContext().replace("-","负"));
-                    audioContextList.add(v);
-                });
-                alarmMessageMap.clear();
-                AlarmDto alarmDto=AlarmDto.builder()
-                        .data(audioContextList)
-                        .message("语音报警消息获取成功")
-                        .status(200)
-                        .size(audioContextList.size())
-                        .build();
-                return alarmDto;
-            }
-
-        }else{
-            AlarmDto alarmDto=AlarmDto.builder()
+        } else {
+            return AlarmDto.builder()
                     .data(new ArrayList<>())
                     .message("无报警消息")
                     .status(200)
                     .size(0)
                     .build();
-            return alarmDto;
         }
 
     }

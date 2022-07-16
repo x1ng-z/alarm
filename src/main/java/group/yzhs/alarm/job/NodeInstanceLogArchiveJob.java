@@ -86,7 +86,7 @@ public class NodeInstanceLogArchiveJob /*implements InitializingBean*/ {
         private void execute() {
             // 获取当前时间的前一天的时间点
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime oneMonthAgo = now.minusMonths(1);
+            LocalDateTime oneMonthAgo = now.minusDays(7);
             ZoneId zone = ZoneId.systemDefault();
             Date time = Date.from(oneMonthAgo.atZone(zone).toInstant());
             // 清除前一个月的报警消息

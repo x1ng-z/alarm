@@ -2,12 +2,13 @@ spring:
   application:
     name: alarm
   profiles:
-    active: prod
+    active: dev
 
   datasource:
-    url: jdbc:mysql://192.168.99.213:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.10.212:3306/dcsalarm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     username: admin
     password: password
+#    ims3d#Prod!#znzz#
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     type: com.alibaba.druid.pool.DruidDataSource
@@ -48,7 +49,7 @@ server:
   port: 8090
   servlet:
     session:
-      timeout: 180s
+      timeout: 180000000s
 
 alarm:
   alarmHistoryArchive: true

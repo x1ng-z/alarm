@@ -2,13 +2,11 @@ package group.yzhs.alarm.model.dto.alarm;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
-import group.yzhs.alarm.constant.ProductTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**

@@ -1,7 +1,6 @@
 package group.yzhs.alarm.model.dto.alarm;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import group.yzhs.alarm.config.FastJsonEnumDeserializerAndSerializerConfig;
 import lombok.Data;
 

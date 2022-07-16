@@ -54,13 +54,13 @@ public class LimitHighHandler extends BaseLimitHander {
                             AlarmHistoryMapperImp alarmHistoryMapperImp,
                             SystemConfigMapperImp systemConfigMapperImp,
                             @Qualifier("http-wx-push-thread")
-                            ExecutorService executorService) {
-        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp,executorService);
+                                    ExecutorService executorService) {
+        super(sessionListener, wxPushConfig, pointMapperImp, alarmHistoryMapperImp, systemConfigMapperImp, executorService);
         this.sessionListener = sessionListener;
         this.wxPushConfig = wxPushConfig;
         this.pointMapperImp = pointMapperImp;
         this.alarmHistoryMapperImp = alarmHistoryMapperImp;
-        this. systemConfigMapperImp= systemConfigMapperImp;
+        this.systemConfigMapperImp = systemConfigMapperImp;
     }
 
     @Override
@@ -75,9 +75,12 @@ public class LimitHighHandler extends BaseLimitHander {
     }
 
     @Override
-    public void handle(BaseRule rule,boolean isSwitch) {
+    public void handle(BaseRule rule) {
+        if (!(rule instanceof LimitRule)) {
+            return;
+        }
         LimitRule limitRule = (LimitRule) rule;
-        if (isSwitch&&judge(rule)) {
+        if (judge(rule)) {
             alarmHandle(limitRule);
         } else {
             noAlarmHandle(limitRule);

@@ -60,6 +60,8 @@ public class AlarmRuleService {
     @Autowired
     private SwitchMapperImp switchMapperImp;
 
+    public static final String INFTY_ALARM_INTERVAL = "inf";
+
     private final static Map<String, LimiteModelEnum> modelEnumMap;
     private final static Map<String, AlarmModelEnum> alarmModelEnumMap;
     private final static Map<String, TrigerModelEnum> trigerModelEnumMap;
@@ -219,6 +221,15 @@ public class AlarmRuleService {
 
 
     private AlarmRule checkParam(AlarmRuleDto alarmRuleDto) {
+
+        if (!INFTY_ALARM_INTERVAL.equals(alarmRuleDto.getAlarmInterval())) {
+            try {
+                Long.parseLong(alarmRuleDto.getAlarmInterval());
+            } catch (NumberFormatException e) {
+                throw new ParameterException("alarmInterval 只支持设置位整型/inf");
+            }
+        }
+
         AlarmRule alarmRule = new AlarmRule();
         //id 校验
         if (ObjectUtils.isNotEmpty(alarmRuleDto.getId())) {
@@ -289,6 +300,7 @@ public class AlarmRuleService {
         alarmRule.setPointId(alarmRuleDto.getPointId());
         alarmRule.setAlarmClassId(alarmRuleDto.getAlarmClassId());
         alarmRule.setAlarmTemple(alarmRuleDto.getAlarmTemple());
+        alarmRule.setAlarmInterval(alarmRuleDto.getAlarmInterval());
         return alarmRule;
     }
 
