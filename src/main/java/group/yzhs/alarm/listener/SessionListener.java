@@ -153,6 +153,7 @@ public class SessionListener implements HttpSessionListener {
                         .alarmId(getAlarmId(baseRule))
                         .pushStatus(historyPushStatus)
                         .alarmHistoryId(historyAlarmMessageId)
+                        .limit(baseRule.getLimiteValue())
                         .build();
 
         Map<String, AlarmMessage> alarmMap = SessionListener.getAlarmList(session);//Map<String, AlarmMessage>) session.getAttribute(SessionContextEnum.SESSIONCONTEXT_ALARMLIST.getCode());
@@ -260,6 +261,7 @@ public class SessionListener implements HttpSessionListener {
                                     .product(limitRule.getAlarmGroup())
                                     .rate(0.0)
                                     .value(limitRule.getValue())
+                                    .limit(limitRule.getLimiteValue())
                                     .build();
                             audioAlarmMap.put(getAlarmId(limitRule), alarmMessage);
                             log.debug("add continue audio list");
@@ -314,7 +316,7 @@ public class SessionListener implements HttpSessionListener {
         baseRule.getIsAlarm().set(false);
     }
 
-    public void removeBolishContext(BaseRule baseRule) {
+    public void removeAbolishContext(BaseRule baseRule) {
         httpSessionMap.values().forEach(session -> {
             Map<String, AlarmMessage> alarmList = getAlarmList(session);
             if (null != alarmList) {

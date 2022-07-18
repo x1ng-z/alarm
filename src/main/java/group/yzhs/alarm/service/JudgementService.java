@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import group.yzhs.alarm.config.CollectorConfig;
 import group.yzhs.alarm.config.WXPushConfig;
-import group.yzhs.alarm.constant.SwitchLogic;
 import group.yzhs.alarm.factory.RuleCacheFacyory;
 import group.yzhs.alarm.listener.SessionListener;
 import group.yzhs.alarm.mapper.impl.*;
@@ -169,7 +168,7 @@ public class JudgementService {
                             switchLogic = switchRuleList.stream().allMatch(sr -> switchLogic(sr, aSwitch, lasterDataFromIot, tempError));
                             break;
                         }
-                        default:{
+                        default: {
                             //do no thing
                         }
                     }
@@ -257,7 +256,14 @@ public class JudgementService {
         abolishedAlarmRelus.addAll(ruleCaches.keySet());
         abolishedAlarmRelus.removeAll(allSetRules.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList()));
         //移除掉数据库废除的报警规则
-        abolishedAlarmRelus.forEach(d -> ruleCaches.remove(d));
+        abolishedAlarmRelus.forEach(d ->
+                {
+                    BaseRule abolishRule=ruleCaches.remove(d);
+                    //清除会话中的报警内容
+                    sessionListener.removeAbolishContext(abolishRule);
+                    log.debug("alarm-mode={},sub-mode={},temple={}",abolishRule.getAlarmMode(),abolishRule.getAlarmSubMode(),abolishRule.getAlarmTemple());
+                }
+        );
         //添加新的报警规则设置
         List<Long> needRemoveRuleCache = new ArrayList<>();
 
@@ -270,14 +276,13 @@ public class JudgementService {
                 log.debug("add id={},temple={}", newestRule.getId(), newestRule.getAlarmTemple());
                 update(newestBaseRule, needRemoveRuleCache);
             } else {
-                //已经存在的规则，已经存在的规则
-
+                //已经存在的规则，但内容被修改
                 BaseRule cacheBaseRule = ruleCaches.get(newestRule.getId());
                 //已经存在的，但是设置和原来的不一样
                 if (!cacheBaseRule.equals(newestBaseRule)) {
                     //删除变换的报警规则，会话中剩余的报警内容
                     log.debug("update relu");
-                    sessionListener.removeBolishContext(cacheBaseRule);
+                    sessionListener.removeAbolishContext(cacheBaseRule);
                     //更新设置
                     BeanUtils.copyProperties(newestBaseRule, cacheBaseRule);
                     update(cacheBaseRule, needRemoveRuleCache);
@@ -285,10 +290,10 @@ public class JudgementService {
                 }
             }
         });
-        //remove its
+        //remove its 如果配置的点位被删除了
         needRemoveRuleCache.forEach(id -> {
             BaseRule baseRule = ruleCaches.remove(id);
-            sessionListener.removeBolishContext(baseRule);
+            sessionListener.removeAbolishContext(baseRule);
         });
     }
 

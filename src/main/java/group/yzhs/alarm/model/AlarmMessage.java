@@ -46,5 +46,7 @@ public class AlarmMessage {
 
     @JSONField(deserializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumDeserializer.class,serializeUsing = FastJsonEnumDeserializerAndSerializerConfig.FastJsonEnumSerializer.class)
     private AlarmPushStatusEnum pushStatus;
+    //限制
+    private Object limit;
 
 }
